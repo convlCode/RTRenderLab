@@ -1,6 +1,6 @@
 # RTRenderLab
 
-  这是一个用OpenGL开发的实时渲染器，拥有基于Qt的GUI界面。程序代码用C++写成，用了部分C++11的特性。代码架构以及基础代码参考了https://learnopengl.com/这个讲解现代OpenGL开发的教程。
+  这是一个用OpenGL开发的实时渲染器，拥有基于Qt的GUI界面。程序代码用C++写成，用了部分C++11的特性。代码架构以及基础代码参考了Joey de Vries ( https://learnopengl.com/ ) 的讲解现代OpenGL开发的教程。
 
 ## 配置指南
 
