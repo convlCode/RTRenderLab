@@ -84,7 +84,16 @@ void GLWidget::initializeGL()
     myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("texture1"),0);
     myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("texture2"),1);
 
-    time.start();
+    //time.start();
+    QMatrix4x4 model,view,projection;
+    model.rotate(-55.0f,QVector3D(1.0f,0.0f,0.0f));
+    view.translate(QVector3D(0.0f,0.0f,-3.0f));
+    projection.perspective(45.0f,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
+
+    myShader->use();
+    myShader->setMat4("model",model);
+    myShader->setMat4("view",view);
+    myShader->setMat4("projection",projection);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -102,12 +111,7 @@ void GLWidget::paintGL()
     core->glActiveTexture(GL_TEXTURE1);
     texture2->bind();
 
-    QMatrix4x4 transform;
-    transform.translate(QVector3D(0.5f,-0.5f,0.0f));
-    transform.rotate(time.elapsed()/10.0f,QVector3D(0.0f,0.0f,1.0f));
-
     myShader->use();
-    myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("transform"),transform);
     core->glBindVertexArray(VAO);
     //core->glDrawArrays(GL_TRIANGLES, 0, 3);
     //core->glUseProgram(0);
