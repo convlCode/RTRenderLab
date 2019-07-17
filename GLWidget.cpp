@@ -1,18 +1,5 @@
 ﻿#include "GLWidget.h"
-
-GLuint VBO, VAO;
-const char *vertexShaderSource =
-        "#version 330 core\n"
-        "layout(location = 0) in vec3 aPos;\n"
-        "void main(){\n"
-        "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\n\0";
-const char *fragmentShaderSource =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main(){\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n\0";
+#include <QImage>
 
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
     :QOpenGLWidget(parent, f)
@@ -22,67 +9,82 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 
 GLWidget::~GLWidget()
 {
+    delete myShader;
+    core->glDeleteVertexArrays(1,&VAO);
+    core->glDeleteBuffers(1,&VBO);
+    core->glDeleteBuffers(1,&EBO);
 
+    //texture->destroy();
 }
 
 void GLWidget::initializeGL()
 {
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
-    unsigned int vertexShader = core->glCreateShader(GL_VERTEX_SHADER);
-    core->glShaderSource(vertexShader,1,&vertexShaderSource,nullptr);
-    core->glCompileShader(vertexShader);
-
-
-    int success;
-    char infoLog[512];
-    core->glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        core->glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        qDebug() << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
-    }
-
-    unsigned int fragmentShader = core->glCreateShader(GL_FRAGMENT_SHADER);
-
-    core->glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    core->glCompileShader(fragmentShader);
-
-    core->glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        core->glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        qDebug() << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
-    }
-    shaderProgram = core->glCreateProgram();
-    core->glAttachShader(shaderProgram, vertexShader);
-    core->glAttachShader(shaderProgram, fragmentShader);
-    core->glLinkProgram(shaderProgram);
-
-    core->glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        core->glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        qDebug() << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << endl;
-    }
-    core->glDeleteShader(vertexShader);
-    core->glDeleteShader(fragmentShader);
+    myShader = new Shader(":/shaders/vertexShaderSource.vs",":/shaders/fragShaderSource.fs");
 
     GLfloat vertices[] = {
-            -0.5f, -0.5f, 0.0f, // left
-             0.5f, -0.5f, 0.0f, // right
-             0.0f,  0.5f, 0.0f  // top
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+       -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+       -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+    };
+
+    GLuint indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
     };
 
     core->glGenVertexArrays(1, &VAO);
     core->glGenBuffers(1, &VBO);
-    core->glBindVertexArray(VAO);
-    core->glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    core->glGenBuffers(1,&EBO);
 
+    core->glBindVertexArray(VAO);
+
+    core->glBindBuffer(GL_ARRAY_BUFFER, VBO);
     core->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    core->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<void*>(0));
+
+    core->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
+    core->glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
+
+    core->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(0));
     core->glEnableVertexAttribArray(0);
 
-    core->glBindBuffer(GL_ARRAY_BUFFER, 0);
-    core->glBindVertexArray(0);
+    core->glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(GLfloat),reinterpret_cast<void*>(3*sizeof(GLfloat)));
+    core->glEnableVertexAttribArray(1);
+
+    core->glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(GLfloat),reinterpret_cast<void*>(6*sizeof(GLfloat)));
+    core->glEnableVertexAttribArray(2);
+
+    texture1 = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    texture1->setFormat(QOpenGLTexture::RGBFormat);
+    QImage img(":/textures/container.jpg");
+    texture1->setData(img.mirrored(),QOpenGLTexture::GenerateMipMaps);
+    if(!texture1->isCreated()){
+        qDebug() << "Failed to load texture" << endl;
+    }
+    texture1->setWrapMode(QOpenGLTexture::DirectionS,QOpenGLTexture::Repeat);
+    texture1->setWrapMode(QOpenGLTexture::DirectionT,QOpenGLTexture::Repeat);
+
+    texture1->setMinificationFilter(QOpenGLTexture::Linear);
+    texture1->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    texture2 = new QOpenGLTexture(QOpenGLTexture::Target2D);
+    texture2->setFormat(QOpenGLTexture::RGBAFormat);
+    QImage img2(":/textures/smileface.png");
+    texture2->setData(img2.mirrored(),QOpenGLTexture::GenerateMipMaps);
+    if(!texture2->isCreated()){
+        qDebug() << "Failed to load texture" << endl;
+    }
+    texture2->setWrapMode(QOpenGLTexture::DirectionS,QOpenGLTexture::Repeat);
+    texture2->setWrapMode(QOpenGLTexture::DirectionT,QOpenGLTexture::Repeat);
+    texture2->setMinificationFilter(QOpenGLTexture::Linear);
+    texture2->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    myShader->use();
+    myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("texture1"),0);
+    myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("texture2"),1);
+
+    time.start();
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -95,8 +97,20 @@ void GLWidget::paintGL()
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT);
 
-    core->glUseProgram(shaderProgram);
+    core->glActiveTexture(GL_TEXTURE0);
+    texture1->bind();
+    core->glActiveTexture(GL_TEXTURE1);
+    texture2->bind();
+
+    QMatrix4x4 transform;
+    transform.translate(QVector3D(0.5f,-0.5f,0.0f));
+    transform.rotate(time.elapsed()/10.0f,QVector3D(0.0f,0.0f,1.0f));
+
+    myShader->use();
+    myShader->shaderProgram.setUniformValue(myShader->shaderProgram.uniformLocation("transform"),transform);
     core->glBindVertexArray(VAO);
-    core->glDrawArrays(GL_TRIANGLES, 0, 3);
-    core->glUseProgram(0);
+    //core->glDrawArrays(GL_TRIANGLES, 0, 3);
+    //core->glUseProgram(0);
+    core->glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,reinterpret_cast<GLvoid*>(0));
+    update();
 }

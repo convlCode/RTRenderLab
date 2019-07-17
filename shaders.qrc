@@ -1,2 +1,8 @@
-<!DOCTYPE RCC>
-<RCC version="1.0"/>
+<RCC>
+    <qresource prefix="/">
+        <file>textures/container.jpg</file>
+        <file>shaders/vertexShaderSource.vs</file>
+        <file>shaders/fragShaderSource.fs</file>
+        <file>textures/smileface.png</file>
+    </qresource>
+</RCC>
