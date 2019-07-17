@@ -110,7 +110,18 @@ void GLWidget::initializeGL()
     myShader->setInt("texture2",1);
 
     time.start();
-
+    cubePositions = {
+        QVector3D( 0.0f,  0.0f,  -1.0f),
+        QVector3D( 2.0f,  5.0f, -15.0f),
+        QVector3D(-1.5f, -2.2f, -2.5f),
+        QVector3D(-3.8f, -2.0f, -12.3f),
+        QVector3D( 2.4f, -0.4f, -3.5f),
+        QVector3D(-1.7f,  3.0f, -7.5f),
+        QVector3D( 1.3f, -2.0f, -2.5f),
+        QVector3D( 1.5f,  2.0f, -2.5f),
+        QVector3D( 1.5f,  0.2f, -1.5f),
+        QVector3D(-1.3f,  1.0f, -1.5f)
+    };
     QMatrix4x4 view,projection;
     //model.rotate(-55.0f,QVector3D(1.0f,0.0f,0.0f));
     view.translate(QVector3D(0.0f,0.0f,-3.0f));
@@ -139,13 +150,15 @@ void GLWidget::paintGL()
     core->glActiveTexture(GL_TEXTURE1);
     texture2->bind();
 
-    QMatrix4x4 model;
-    model.rotate(static_cast<float>(time.elapsed())/10.0f,QVector3D(0.5f,1.0f,0.0f));
+    for(int i = 0;i<10;++i){
+        QMatrix4x4 model;
+        model.translate(cubePositions[i]);
+        model.rotate(static_cast<float>(time.elapsed())/10.0f,cubePositions[i]);
 
-    myShader->use();
-    myShader->setMat4("model",model);
-    core->glBindVertexArray(VAO);
-    core->glDrawArrays(GL_TRIANGLES, 0, 36);
-
+        myShader->use();
+        myShader->setMat4("model",model);
+        core->glBindVertexArray(VAO);
+        core->glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
     update();
 }

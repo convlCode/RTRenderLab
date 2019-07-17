@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include <QOpenGLTexture>
 #include <QTime>
+#include <QVector>
 
 class GLWidget : public QOpenGLWidget
 {
@@ -30,6 +31,7 @@ private:
     QOpenGLTexture* texture2;
 
     QTime time;
+    QVector<QVector3D> cubePositions;
 };
 
 #endif // GLWIDGET_H
