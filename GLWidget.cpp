@@ -122,14 +122,14 @@ void GLWidget::initializeGL()
         QVector3D( 1.5f,  0.2f, -1.5f),
         QVector3D(-1.3f,  1.0f, -1.5f)
     };
-    QMatrix4x4 view,projection;
+    QMatrix4x4 projection;
     //model.rotate(-55.0f,QVector3D(1.0f,0.0f,0.0f));
-    view.translate(QVector3D(0.0f,0.0f,-3.0f));
+    //view.translate(QVector3D(0.0f,0.0f,-3.0f));
     projection.perspective(45.0f,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
 
     myShader->use();
     //myShader->setMat4("model",model);
-    myShader->setMat4("view",view);
+    //myShader->setMat4("view",view);
     myShader->setMat4("projection",projection);
 
     core->glEnable(GL_DEPTH_TEST);
@@ -150,10 +150,19 @@ void GLWidget::paintGL()
     core->glActiveTexture(GL_TEXTURE1);
     texture2->bind();
 
+    myShader->use();
+
+    QMatrix4x4 view;
+    GLfloat radius = 15.0f;
+    GLfloat camX = sin(static_cast<float>(time.elapsed())/1000.0f)*radius;
+    GLfloat camZ = cos(static_cast<float>(time.elapsed())/1000.0f)*radius;
+    view.lookAt(QVector3D(camX,0.0f,camZ),QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));
+    myShader->setMat4("view",view);
+
     for(int i = 0;i<10;++i){
         QMatrix4x4 model;
         model.translate(cubePositions[i]);
-        model.rotate(static_cast<float>(time.elapsed())/10.0f,cubePositions[i]);
+        model.rotate(20.0f * i,cubePositions[i]);
 
         myShader->use();
         myShader->setMat4("model",model);
