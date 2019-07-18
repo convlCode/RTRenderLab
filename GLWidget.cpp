@@ -1,10 +1,11 @@
 ﻿#include "GLWidget.h"
 #include <QImage>
+#include <QKeyEvent>
 
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
     :QOpenGLWidget(parent, f)
 {
-
+    this->grabKeyboard();
 }
 
 GLWidget::~GLWidget()
@@ -133,6 +134,12 @@ void GLWidget::initializeGL()
     myShader->setMat4("projection",projection);
 
     core->glEnable(GL_DEPTH_TEST);
+
+    cameraPos = QVector3D(0.0f,0.0f,3.0f);
+    cameraFront = QVector3D(0.0f,0.0f,-1.0f);
+    cameraUp = QVector3D(0.0f,1.0f,0.0f);
+    deltaTime=0.0f;
+    lastFrame=0.0f;
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -142,6 +149,10 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::paintGL()
 {
+    GLfloat currentFrame = static_cast<GLfloat>(time.elapsed()) / 100;
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -153,10 +164,7 @@ void GLWidget::paintGL()
     myShader->use();
 
     QMatrix4x4 view;
-    GLfloat radius = 15.0f;
-    GLfloat camX = sin(static_cast<float>(time.elapsed())/1000.0f)*radius;
-    GLfloat camZ = cos(static_cast<float>(time.elapsed())/1000.0f)*radius;
-    view.lookAt(QVector3D(camX,0.0f,camZ),QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));
+    view.lookAt(cameraPos,cameraPos+cameraFront,cameraUp);
     myShader->setMat4("view",view);
 
     for(int i = 0;i<10;++i){
@@ -170,4 +178,27 @@ void GLWidget::paintGL()
         core->glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     update();
+}
+
+void GLWidget::keyPressEvent(QKeyEvent *event)
+{
+    float cameraSpeed = 2.5f * deltaTime;
+    if(event->key()==Qt::Key_W){
+        cameraPos += cameraFront * cameraSpeed;
+    }
+    if(event->key()==Qt::Key_S){
+        cameraPos -= cameraFront * cameraSpeed;
+    }
+    if(event->key()==Qt::Key_A){
+        cameraPos -= (QVector3D::crossProduct(cameraFront,cameraUp).normalized()) * cameraSpeed;
+    }
+    if(event->key()==Qt::Key_D){
+        cameraPos += (QVector3D::crossProduct(cameraFront,cameraUp).normalized()) * cameraSpeed;
+    }
+    if(event->key()==Qt::Key_E){
+        cameraPos += cameraUp * cameraSpeed;
+    }
+    if(event->key()==Qt::Key_Q){
+        cameraPos -= cameraUp * cameraSpeed;
+    }
 }

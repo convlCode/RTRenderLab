@@ -7,6 +7,7 @@
 #include <QOpenGLTexture>
 #include <QTime>
 #include <QVector>
+#include <QVector3D>
 
 class GLWidget : public QOpenGLWidget
 {
@@ -20,6 +21,8 @@ protected:
     virtual void resizeGL(int w,int h);
     virtual void paintGL();
 
+    void keyPressEvent(QKeyEvent* event);
+
 private:
     GLuint VAO;
     GLuint VBO;
@@ -32,6 +35,12 @@ private:
 
     QTime time;
     QVector<QVector3D> cubePositions;
+
+    QVector3D cameraPos;
+    QVector3D cameraFront;
+    QVector3D cameraUp;
+    GLfloat   deltaTime;
+    GLfloat   lastFrame;
 };
 
 #endif // GLWIDGET_H
