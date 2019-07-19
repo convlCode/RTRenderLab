@@ -1,6 +1,7 @@
 ﻿#ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include <QWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include "Shader.h"
@@ -9,8 +10,13 @@
 #include <QVector>
 #include <QVector3D>
 
+namespace Ui{
+    class GLWidget;
+}
+
 class GLWidget : public QOpenGLWidget
 {
+    Q_OBJECT
 public:
     GLWidget(QWidget* parent = nullptr,Qt::WindowFlags f =Qt::WindowFlags());
     ~GLWidget();
@@ -22,7 +28,8 @@ protected:
     virtual void paintGL();
 
     void keyPressEvent(QKeyEvent* event);
-
+    void mouseMoveEvent(QMouseEvent* event);
+    void wheelEvent(QWheelEvent* event);
 private:
     GLuint VAO;
     GLuint VBO;
@@ -41,6 +48,13 @@ private:
     QVector3D cameraUp;
     GLfloat   deltaTime;
     GLfloat   lastFrame;
+
+    bool    firstMouse;
+    float   yaw;
+    float   pitch;
+    float   lastX;
+    float   lastY;
+    float   fov;
 };
 
 #endif // GLWIDGET_H

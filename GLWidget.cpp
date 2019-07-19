@@ -5,7 +5,7 @@
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
     :QOpenGLWidget(parent, f)
 {
-    this->grabKeyboard();
+    //this->grabKeyboard(); we can set the focusPolicy to get the keyboard.
 }
 
 GLWidget::~GLWidget()
@@ -123,15 +123,6 @@ void GLWidget::initializeGL()
         QVector3D( 1.5f,  0.2f, -1.5f),
         QVector3D(-1.3f,  1.0f, -1.5f)
     };
-    QMatrix4x4 projection;
-    //model.rotate(-55.0f,QVector3D(1.0f,0.0f,0.0f));
-    //view.translate(QVector3D(0.0f,0.0f,-3.0f));
-    projection.perspective(45.0f,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
-
-    myShader->use();
-    //myShader->setMat4("model",model);
-    //myShader->setMat4("view",view);
-    myShader->setMat4("projection",projection);
 
     core->glEnable(GL_DEPTH_TEST);
 
@@ -140,6 +131,13 @@ void GLWidget::initializeGL()
     cameraUp = QVector3D(0.0f,1.0f,0.0f);
     deltaTime=0.0f;
     lastFrame=0.0f;
+
+    firstMouse = true;
+    yaw = -90.0f;
+    pitch = 0.0f;
+    lastX = 800.0f/2.0f;
+    lastY = 600.0f/2.0f;
+    fov = 45.0f;
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -162,6 +160,10 @@ void GLWidget::paintGL()
     texture2->bind();
 
     myShader->use();
+
+    QMatrix4x4 projection;
+    projection.perspective(fov,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
+    myShader->setMat4("projection",projection);
 
     QMatrix4x4 view;
     view.lookAt(cameraPos,cameraPos+cameraFront,cameraUp);
@@ -201,4 +203,44 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     if(event->key()==Qt::Key_Q){
         cameraPos -= cameraUp * cameraSpeed;
     }
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    float xpos = event->pos().x();
+    float ypos = event->pos().y();
+    if(firstMouse){
+        lastX = event->pos().x();
+        lastY = event->pos().y();
+        firstMouse = false;
+    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.005f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+    if(pitch>89.0f)
+        pitch = 89.0f;
+    if(pitch<-89.0f)
+        pitch = -89.0f;
+
+    QVector3D front(cos(yaw)*cos(pitch),sin(pitch),sin(yaw)*cos(pitch));
+    cameraFront = front.normalized();
+}
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+    QPoint offset = event->angleDelta();
+    if(fov >= 1.0f && fov <= 45.0f)
+        fov -= static_cast<float>(offset.y())/20.0f;
+    if(fov < 1.0f)
+        fov = 1.0f;
+    if(fov > 45.0f)
+        fov = 45.0f;
 }
