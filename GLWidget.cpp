@@ -14,7 +14,7 @@ GLWidget::~GLWidget()
     core->glDeleteVertexArrays(1,&VAO);
     core->glDeleteBuffers(1,&VBO);
     core->glDeleteBuffers(1,&EBO);
-
+    delete camera;
     //texture->destroy();
 }
 
@@ -126,18 +126,16 @@ void GLWidget::initializeGL()
 
     core->glEnable(GL_DEPTH_TEST);
 
-    cameraPos = QVector3D(0.0f,0.0f,3.0f);
-    cameraFront = QVector3D(0.0f,0.0f,-1.0f);
-    cameraUp = QVector3D(0.0f,1.0f,0.0f);
+    camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
+
     deltaTime=0.0f;
     lastFrame=0.0f;
 
-    firstMouse = true;
-    yaw = -90.0f;
-    pitch = 0.0f;
-    lastX = 800.0f/2.0f;
-    lastY = 600.0f/2.0f;
-    fov = 45.0f;
+    isFirstMouse = true;
+    isLeftMousePress = false;
+
+    lastX = 640.0f/2.0f;
+    lastY = 480.0f/2.0f;
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -151,6 +149,8 @@ void GLWidget::paintGL()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    camera->processInput(deltaTime);
+
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -162,19 +162,16 @@ void GLWidget::paintGL()
     myShader->use();
 
     QMatrix4x4 projection;
-    projection.perspective(fov,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
+    projection.perspective(camera->zoom,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
     myShader->setMat4("projection",projection);
 
-    QMatrix4x4 view;
-    view.lookAt(cameraPos,cameraPos+cameraFront,cameraUp);
-    myShader->setMat4("view",view);
+    myShader->setMat4("view",camera->getViewMatrix());
 
     for(int i = 0;i<10;++i){
         QMatrix4x4 model;
         model.translate(cubePositions[i]);
         model.rotate(20.0f * i,cubePositions[i]);
 
-        myShader->use();
         myShader->setMat4("model",model);
         core->glBindVertexArray(VAO);
         core->glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -184,63 +181,55 @@ void GLWidget::paintGL()
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-    float cameraSpeed = 2.5f * deltaTime;
-    if(event->key()==Qt::Key_W){
-        cameraPos += cameraFront * cameraSpeed;
-    }
-    if(event->key()==Qt::Key_S){
-        cameraPos -= cameraFront * cameraSpeed;
-    }
-    if(event->key()==Qt::Key_A){
-        cameraPos -= (QVector3D::crossProduct(cameraFront,cameraUp).normalized()) * cameraSpeed;
-    }
-    if(event->key()==Qt::Key_D){
-        cameraPos += (QVector3D::crossProduct(cameraFront,cameraUp).normalized()) * cameraSpeed;
-    }
-    if(event->key()==Qt::Key_E){
-        cameraPos += cameraUp * cameraSpeed;
-    }
-    if(event->key()==Qt::Key_Q){
-        cameraPos -= cameraUp * cameraSpeed;
-    }
+    GLint key = event->key();
+    if(key >= 0 && key < 1024)
+        camera->keys[key] = GL_TRUE;
+}
+
+void GLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    GLint key = event->key();
+    if(key >= 0 && key < 1024)
+        camera->keys[key] = GL_FALSE;
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    float xpos = event->pos().x();
-    float ypos = event->pos().y();
-    if(firstMouse){
-        lastX = event->pos().x();
-        lastY = event->pos().y();
-        firstMouse = false;
+    GLint xpos = event->pos().x();
+    GLint ypos = event->pos().y();
+
+    if(isLeftMousePress){
+        if(isFirstMouse){
+            lastX = xpos;
+            lastY = ypos;
+            isFirstMouse = GL_FALSE;
+        }
+
+        GLfloat xoffset = xpos - lastX;
+        GLfloat yoffset = lastY - ypos;
+        lastX = xpos;
+        lastY = ypos;
+        camera->processMouseMovement(xoffset,yoffset);
     }
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 0.005f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-    if(pitch>89.0f)
-        pitch = 89.0f;
-    if(pitch<-89.0f)
-        pitch = -89.0f;
-
-    QVector3D front(cos(yaw)*cos(pitch),sin(pitch),sin(yaw)*cos(pitch));
-    cameraFront = front.normalized();
 }
 
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
-    QPoint offset = event->angleDelta();
-    if(fov >= 1.0f && fov <= 45.0f)
-        fov -= static_cast<float>(offset.y())/20.0f;
-    if(fov < 1.0f)
-        fov = 1.0f;
-    if(fov > 45.0f)
-        fov = 45.0f;
+   QPoint offset = event->angleDelta();
+   camera->processMouseScroll(offset.y()/20.0f);
+}
+
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton){
+        isLeftMousePress = GL_TRUE;
+    }
+}
+
+void GLWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton){
+        isLeftMousePress = GL_FALSE;
+        isFirstMouse = GL_TRUE;
+    }
 }

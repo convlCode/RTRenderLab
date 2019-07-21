@@ -9,10 +9,7 @@
 #include <QTime>
 #include <QVector>
 #include <QVector3D>
-
-namespace Ui{
-    class GLWidget;
-}
+#include "Camera.h"
 
 class GLWidget : public QOpenGLWidget
 {
@@ -28,8 +25,11 @@ protected:
     virtual void paintGL();
 
     void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
     void wheelEvent(QWheelEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 private:
     GLuint VAO;
     GLuint VBO;
@@ -43,18 +43,16 @@ private:
     QTime time;
     QVector<QVector3D> cubePositions;
 
-    QVector3D cameraPos;
-    QVector3D cameraFront;
-    QVector3D cameraUp;
+    Camera* camera;
+
     GLfloat   deltaTime;
     GLfloat   lastFrame;
 
-    bool    firstMouse;
-    float   yaw;
-    float   pitch;
+    bool    isFirstMouse;
+    bool    isLeftMousePress;
+
     float   lastX;
     float   lastY;
-    float   fov;
 };
 
 #endif // GLWIDGET_H

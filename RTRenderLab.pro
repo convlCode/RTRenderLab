@@ -24,12 +24,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    Camera.cpp \
         main.cpp \
         mainwindow.cpp \
     GLWidget.cpp \
     Shader.cpp
 
 HEADERS += \
+    Camera.h \
         mainwindow.h \
     GLWidget.h \
     Shader.h
