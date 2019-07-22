@@ -6,29 +6,33 @@
 
 class Shader
 {
+    friend class ResourceManager;
 public:
-    Shader(const QString& vertexSourcePath,const QString& fragmentSourcePath);
+    Shader(){}
+    //Shader(const QString& vertexSourcePath,const QString& fragmentSourcePath);
+    void compile(const QString& vertexSource, const QString& fragmentSource, const QString& geometrySource = nullptr);
     ~Shader();
 
-    QOpenGLShaderProgram shaderProgram;
+    QOpenGLShaderProgram* shaderProgram;
 
-    void use(){
-        shaderProgram.bind();
+    Shader& use(){
+        shaderProgram->bind();
+        return *this;
     }
-    inline void setMat4(const QString& name,const QMatrix4x4& value);
-    inline void setInt(const QString& name,const GLint value);
+    inline void setMatrix4f(const QString& name,const QMatrix4x4& value);
+    inline void setInteger(const QString& name,const GLint value);
 };
 
-inline void Shader::setMat4(const QString &name, const QMatrix4x4 &value)
+inline void Shader::setMatrix4f(const QString &name, const QMatrix4x4 &value)
 {
-    GLint loc = shaderProgram.uniformLocation(name);
-    shaderProgram.setUniformValue(loc,value);
+    GLint loc = shaderProgram->uniformLocation(name);
+    shaderProgram->setUniformValue(loc,value);
 }
 
-inline void Shader::setInt(const QString &name, const GLint value)
+inline void Shader::setInteger(const QString &name, const GLint value)
 {
-    GLint loc = shaderProgram.uniformLocation(name);
-    shaderProgram.setUniformValue(loc,value);
+    GLint loc = shaderProgram->uniformLocation(name);
+    shaderProgram->setUniformValue(loc,value);
 }
 
 #endif // SHADER_H

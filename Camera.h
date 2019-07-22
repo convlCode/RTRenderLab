@@ -44,7 +44,7 @@ public:
     QMatrix4x4 getViewMatrix();
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constraintPitch = true);
     void processMouseScroll(GLfloat yoffset);
-    void processInput(GLfloat dt);
+    void processKeyboard(Camera_Movement direction, GLfloat deltaTime);
 
     QVector3D position;
     QVector3D worldUp;
@@ -65,7 +65,6 @@ public:
     GLboolean keys[1024];
 private:
     void updateCameraVectors();
-    void processKeyboard(Camera_Movement direction, GLfloat deltaTime);
 
 };
 

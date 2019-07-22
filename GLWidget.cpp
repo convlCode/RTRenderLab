@@ -1,6 +1,7 @@
 ﻿#include "GLWidget.h"
 #include <QImage>
 #include <QKeyEvent>
+#include "ResourceManager.h"
 
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
     :QOpenGLWidget(parent, f)
@@ -10,132 +11,83 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 
 GLWidget::~GLWidget()
 {
-    delete myShader;
-    core->glDeleteVertexArrays(1,&VAO);
-    core->glDeleteBuffers(1,&VBO);
-    core->glDeleteBuffers(1,&EBO);
+    delete cube;
     delete camera;
     //texture->destroy();
+}
+
+void GLWidget::handleKeyPressEvent(QKeyEvent *event){
+  GLint key = event->key();
+  if(key >= 0 && key <= 1024)
+    this->keys[key] = GL_TRUE;
+
+}
+
+void GLWidget::handleKeyReleaseEvent(QKeyEvent *event){
+  GLint key = event->key();
+  if(key >= 0 && key <= 1024)
+      this->keys[key] = GL_FALSE;
 }
 
 void GLWidget::initializeGL()
 {
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
-    myShader = new Shader(":/shaders/vertexShaderSource.vs",":/shaders/fragShaderSource.fs");
+    isOpenLighting = GL_TRUE;
+    isLineMode = GL_FALSE;
 
-    float vertices[] = {
-           -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    for(GLuint i = 0; i != 1024; ++i)
+      keys[i] = GL_FALSE;
 
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-           -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    deltaTime = 0.0f;
+    lastFrame = 0.0f;
 
-           -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    isFirstMouse = true;
+    isLeftMousePress = false;
+    lastX = width() / 2.0f;
+    lastY = height() / 2.0f;
 
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
 
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    cube = new Cube();
+    cube->init();
 
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
+    plane = new Plane();
+    plane->init();
 
-    core->glGenVertexArrays(1, &VAO);
-    core->glGenBuffers(1, &VBO);
-
-    core->glBindVertexArray(VAO);
-
-    core->glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    core->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    core->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-    core->glEnableVertexAttribArray(0);
+    coordinate = new Coordinate();
+    coordinate->init();
 
     core->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),reinterpret_cast<void*>(3*sizeof(GLfloat)));
     core->glEnableVertexAttribArray(1);
 
-    texture1 = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    texture1->setFormat(QOpenGLTexture::RGBFormat);
-    QImage img(":/textures/container.jpg");
-    texture1->setData(img.mirrored(),QOpenGLTexture::GenerateMipMaps);
-    if(!texture1->isCreated()){
-        qDebug() << "Failed to load texture" << endl;
-    }
-    texture1->setWrapMode(QOpenGLTexture::DirectionS,QOpenGLTexture::Repeat);
-    texture1->setWrapMode(QOpenGLTexture::DirectionT,QOpenGLTexture::Repeat);
+    ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vert", ":/shaders/coordinate.frag");
+    ResourceManager::loadShader("cube", ":/shaders/cube.vert", ":/shaders/cube.frag");
+    ResourceManager::loadShader("plane", ":/shaders/plane.vert", ":/shaders/plane.frag");
 
-    texture1->setMinificationFilter(QOpenGLTexture::Linear);
-    texture1->setMagnificationFilter(QOpenGLTexture::Linear);
+    ResourceManager::loadTexture("brickwall", ":/textures/brickwall.jpg");
+    ResourceManager::loadTexture("cementwall", ":/textures/cementwall.jpg");
 
-    texture2 = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    texture2->setFormat(QOpenGLTexture::RGBAFormat);
-    QImage img2(":/textures/smileface.png");
-    texture2->setData(img2.mirrored(),QOpenGLTexture::GenerateMipMaps);
-    if(!texture2->isCreated()){
-        qDebug() << "Failed to load texture" << endl;
-    }
-    texture2->setWrapMode(QOpenGLTexture::DirectionS,QOpenGLTexture::Repeat);
-    texture2->setWrapMode(QOpenGLTexture::DirectionT,QOpenGLTexture::Repeat);
-    texture2->setMinificationFilter(QOpenGLTexture::Linear);
-    texture2->setMagnificationFilter(QOpenGLTexture::Linear);
+    /***********  cube shader **************/
+    QMatrix4x4 model;
+    ResourceManager::getShader("cube").use().setMatrix4f("model", model);
+    ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
 
-    myShader->use();
-    myShader->setInt("texture1",0);
-    myShader->setInt("texture2",1);
+    /***********  plane shader**************/
+    model.setToIdentity();
+    model.translate(0.0f, -0.8f, 0.0f);
+    model.scale(2.0f);
+    ResourceManager::getShader("plane").use().setMatrix4f("model", model);
+    ResourceManager::getShader("plane").use().setInteger("ambientMap", 0);
 
-    time.start();
-    cubePositions = {
-        QVector3D( 0.0f,  0.0f,  -1.0f),
-        QVector3D( 2.0f,  5.0f, -15.0f),
-        QVector3D(-1.5f, -2.2f, -2.5f),
-        QVector3D(-3.8f, -2.0f, -12.3f),
-        QVector3D( 2.4f, -0.4f, -3.5f),
-        QVector3D(-1.7f,  3.0f, -7.5f),
-        QVector3D( 1.3f, -2.0f, -2.5f),
-        QVector3D( 1.5f,  2.0f, -2.5f),
-        QVector3D( 1.5f,  0.2f, -1.5f),
-        QVector3D(-1.3f,  1.0f, -1.5f)
-    };
+
+    /***********  coordinate shader**************/
+    model.setToIdentity();
+    model.scale(20.0f);
+    ResourceManager::getShader("coordinate").use().setMatrix4f("model", model);
 
     core->glEnable(GL_DEPTH_TEST);
-
-    camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
-
-    deltaTime=0.0f;
-    lastFrame=0.0f;
-
-    isFirstMouse = true;
-    isLeftMousePress = false;
-
-    lastX = 640.0f/2.0f;
-    lastY = 480.0f/2.0f;
+    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
+    core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -149,48 +101,57 @@ void GLWidget::paintGL()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    camera->processInput(deltaTime);
+    this->processInput(deltaTime);
+    this->updateGL();
 
-    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
-    core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    ResourceManager::getShader("cube").use();
     core->glActiveTexture(GL_TEXTURE0);
-    texture1->bind();
-    core->glActiveTexture(GL_TEXTURE1);
-    texture2->bind();
+    ResourceManager::getTexture("brickwall").bind();
+    cube->draw(GL_TRUE);
 
-    myShader->use();
+    ResourceManager::getShader("plane").use();
+    core->glActiveTexture(GL_TEXTURE0);
+    ResourceManager::getTexture("cementwall").bind();
+    plane->draw(GL_TRUE);
 
-    QMatrix4x4 projection;
-    projection.perspective(camera->zoom,static_cast<float>(width())/static_cast<float>(height()),0.1f,100.0f);
-    myShader->setMat4("projection",projection);
-
-    myShader->setMat4("view",camera->getViewMatrix());
-
-    for(int i = 0;i<10;++i){
-        QMatrix4x4 model;
-        model.translate(cubePositions[i]);
-        model.rotate(20.0f * i,cubePositions[i]);
-
-        myShader->setMat4("model",model);
-        core->glBindVertexArray(VAO);
-        core->glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-    update();
+    ResourceManager::getShader("coordinate").use();
+    coordinate->draw();
 }
 
-void GLWidget::keyPressEvent(QKeyEvent *event)
-{
-    GLint key = event->key();
-    if(key >= 0 && key < 1024)
-        camera->keys[key] = GL_TRUE;
+void GLWidget::processInput(GLfloat dt){
+  if (keys[Qt::Key_W])
+    camera->processKeyboard(FORWARD, dt);
+  if (keys[Qt::Key_S])
+    camera->processKeyboard(BACKWARD, dt);
+  if (keys[Qt::Key_A])
+    camera->processKeyboard(LEFT, dt);
+  if (keys[Qt::Key_D])
+    camera->processKeyboard(RIGHT, dt);
+  if (keys[Qt::Key_E])
+    camera->processKeyboard(UP, dt);
+  if (keys[Qt::Key_Q])
+    camera->processKeyboard(DOWN, dt);
+
 }
 
-void GLWidget::keyReleaseEvent(QKeyEvent *event)
-{
-    GLint key = event->key();
-    if(key >= 0 && key < 1024)
-        camera->keys[key] = GL_FALSE;
+void GLWidget::updateGL(){
+  if(this->isLineMode)
+    core->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  else
+    core->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  QMatrix4x4 projection, view;
+  projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 2000.f);
+  view = camera->getViewMatrix();
+
+  ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
+  ResourceManager::getShader("cube").use().setMatrix4f("view", view);
+
+  ResourceManager::getShader("plane").use().setMatrix4f("projection", projection);
+  ResourceManager::getShader("plane").use().setMatrix4f("view", view);
+
+  ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
+  ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)

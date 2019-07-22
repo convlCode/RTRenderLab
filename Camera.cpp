@@ -52,23 +52,6 @@ void Camera::processMouseScroll(GLfloat yoffset)
       this->zoom = 1.0f;
 }
 
-void Camera::processInput(GLfloat dt)
-{
-
-    if (keys[Qt::Key_W])
-      processKeyboard(FORWARD, dt);
-    if (keys[Qt::Key_S])
-      processKeyboard(BACKWARD, dt);
-    if (keys[Qt::Key_A])
-      processKeyboard(LEFT, dt);
-    if (keys[Qt::Key_D])
-      processKeyboard(RIGHT, dt);
-    if (keys[Qt::Key_E])
-      processKeyboard(UP, dt);
-    if (keys[Qt::Key_Q])
-      processKeyboard(DOWN, dt);
-}
-
 void Camera::updateCameraVectors()
 {
   QVector3D front3(cos(this->yaw) * cos(this->picth), sin(this->picth), sin(this->yaw) * cos(this->picth));

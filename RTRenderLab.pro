@@ -25,16 +25,26 @@ CONFIG += c++11
 
 SOURCES += \
     Camera.cpp \
+    ResourceManager.cpp \
+    Texture2D.cpp \
         main.cpp \
         mainwindow.cpp \
     GLWidget.cpp \
-    Shader.cpp
+    Shader.cpp \
+    renderOBJ/Coordinate.cpp \
+    renderOBJ/Cube.cpp \
+    renderOBJ/Plane.cpp
 
 HEADERS += \
     Camera.h \
+    ResourceManager.h \
+    Texture2D.h \
         mainwindow.h \
     GLWidget.h \
-    Shader.h
+    Shader.h \
+    renderOBJ/Coordinate.h \
+    renderOBJ/Cube.h \
+    renderOBJ/Plane.h
 
 FORMS += \
         mainwindow.ui
