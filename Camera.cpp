@@ -1,5 +1,5 @@
 ﻿#include "Camera.h"
-
+#include <QDebug>
 QMatrix4x4 Camera::getViewMatrix()
 {
   QMatrix4x4 view;
@@ -9,6 +9,7 @@ QMatrix4x4 Camera::getViewMatrix()
 
 void Camera::processKeyboard(Camera_Movement direction, GLfloat deltaTime)
 {
+  //qDebug() << "in  processkeyboard dt: " << deltaTime <<endl;
   GLfloat velocity = this->movementSpeed * deltaTime;
   if (direction == FORWARD)
     this->position += this->front * velocity;
@@ -50,6 +51,22 @@ void Camera::processMouseScroll(GLfloat yoffset)
     this->zoom = 45.0f;
   if (this->zoom < 1.0f)
       this->zoom = 1.0f;
+}
+
+void Camera::processInput(GLfloat dt)
+{
+    if (this->keys[Qt::Key_W])
+      processKeyboard(FORWARD, dt);
+    if (this->keys[Qt::Key_S])
+      processKeyboard(BACKWARD, dt);
+    if (this->keys[Qt::Key_A])
+      processKeyboard(LEFT, dt);
+    if (this->keys[Qt::Key_D])
+      processKeyboard(RIGHT, dt);
+    if (this->keys[Qt::Key_E])
+      processKeyboard(UP, dt);
+    if (this->keys[Qt::Key_Q])
+      processKeyboard(DOWN, dt);
 }
 
 void Camera::updateCameraVectors()

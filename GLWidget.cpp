@@ -16,27 +16,11 @@ GLWidget::~GLWidget()
     //texture->destroy();
 }
 
-void GLWidget::handleKeyPressEvent(QKeyEvent *event){
-  GLint key = event->key();
-  if(key >= 0 && key <= 1024)
-    this->keys[key] = GL_TRUE;
-
-}
-
-void GLWidget::handleKeyReleaseEvent(QKeyEvent *event){
-  GLint key = event->key();
-  if(key >= 0 && key <= 1024)
-      this->keys[key] = GL_FALSE;
-}
-
 void GLWidget::initializeGL()
 {
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
     isOpenLighting = GL_TRUE;
     isLineMode = GL_FALSE;
-
-    for(GLuint i = 0; i != 1024; ++i)
-      keys[i] = GL_FALSE;
 
     deltaTime = 0.0f;
     lastFrame = 0.0f;
@@ -45,6 +29,8 @@ void GLWidget::initializeGL()
     isLeftMousePress = false;
     lastX = width() / 2.0f;
     lastY = height() / 2.0f;
+
+    time.start();
 
     camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
 
@@ -60,9 +46,9 @@ void GLWidget::initializeGL()
     core->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),reinterpret_cast<void*>(3*sizeof(GLfloat)));
     core->glEnableVertexAttribArray(1);
 
-    ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vert", ":/shaders/coordinate.frag");
-    ResourceManager::loadShader("cube", ":/shaders/cube.vert", ":/shaders/cube.frag");
-    ResourceManager::loadShader("plane", ":/shaders/plane.vert", ":/shaders/plane.frag");
+    ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vs", ":/shaders/coordinate.fs");
+    ResourceManager::loadShader("cube", ":/shaders/cube.vs", ":/shaders/cube.fs");
+    ResourceManager::loadShader("plane", ":/shaders/plane.vs", ":/shaders/plane.fs");
 
     ResourceManager::loadTexture("brickwall", ":/textures/brickwall.jpg");
     ResourceManager::loadTexture("cementwall", ":/textures/cementwall.jpg");
@@ -86,7 +72,7 @@ void GLWidget::initializeGL()
     ResourceManager::getShader("coordinate").use().setMatrix4f("model", model);
 
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
+    core->glClearColor(0.3f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -97,11 +83,11 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::paintGL()
 {
-    GLfloat currentFrame = static_cast<GLfloat>(time.elapsed()) / 100;
+    GLfloat currentFrame = static_cast<GLfloat>(time.elapsed()) / 100.0f;
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    this->processInput(deltaTime);
+    camera->processInput(deltaTime);
     this->updateGL();
 
     ResourceManager::getShader("cube").use();
@@ -116,8 +102,10 @@ void GLWidget::paintGL()
 
     ResourceManager::getShader("coordinate").use();
     coordinate->draw();
-}
 
+    update();
+}
+/*
 void GLWidget::processInput(GLfloat dt){
   if (keys[Qt::Key_W])
     camera->processKeyboard(FORWARD, dt);
@@ -132,7 +120,7 @@ void GLWidget::processInput(GLfloat dt){
   if (keys[Qt::Key_Q])
     camera->processKeyboard(DOWN, dt);
 
-}
+}*/
 
 void GLWidget::updateGL(){
   if(this->isLineMode)
@@ -152,6 +140,20 @@ void GLWidget::updateGL(){
 
   ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
+}
+
+void GLWidget::keyPressEvent(QKeyEvent *event)
+{
+    GLint key = event->key();
+    if(key >= 0 && key <= 1024)
+      camera->keys[key] = GL_TRUE;
+}
+
+void GLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    GLint key = event->key();
+    if(key >= 0 && key <= 1024)
+        camera->keys[key] = GL_FALSE;
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)

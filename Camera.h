@@ -38,13 +38,15 @@ public:
         this->updateCameraVectors();
 
         for(GLuint i = 0; i != 1024; ++i)
-            keys[i] = GL_FALSE;
+            this->keys[i] = GL_FALSE;
     }
 
     QMatrix4x4 getViewMatrix();
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constraintPitch = true);
     void processMouseScroll(GLfloat yoffset);
     void processKeyboard(Camera_Movement direction, GLfloat deltaTime);
+
+    void processInput(GLfloat dt);
 
     QVector3D position;
     QVector3D worldUp;

@@ -4,5 +4,13 @@
         <file>shaders/vertexShaderSource.vs</file>
         <file>shaders/fragShaderSource.fs</file>
         <file>textures/smileface.png</file>
+        <file>shaders/coordinate.fs</file>
+        <file>shaders/coordinate.vs</file>
+        <file>shaders/cube.fs</file>
+        <file>shaders/cube.vs</file>
+        <file>shaders/plane.fs</file>
+        <file>shaders/plane.vs</file>
+        <file>textures/brickwall.jpg</file>
+        <file>textures/cementwall.jpg</file>
     </qresource>
 </RCC>
