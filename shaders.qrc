@@ -12,5 +12,7 @@
         <file>shaders/plane.vs</file>
         <file>textures/brickwall.jpg</file>
         <file>textures/cementwall.jpg</file>
+        <file>shaders/light.fs</file>
+        <file>shaders/light.vs</file>
     </qresource>
 </RCC>

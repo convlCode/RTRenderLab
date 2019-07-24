@@ -1,11 +1,11 @@
 #version 330 core
 
 out vec4 fragColor;
-in vec2 TexCoords;
 
-uniform sampler2D ambientMap;
+uniform vec3 objectColor;
+uniform vec3 lightColor;
 
 void main()
 {
-    fragColor = texture2D(ambientMap,TexCoords);
+    fragColor = vec4(objectColor*lightColor, 1.0f);
 }

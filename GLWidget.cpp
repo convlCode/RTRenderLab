@@ -12,8 +12,11 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 GLWidget::~GLWidget()
 {
     delete cube;
+    delete plane;
+    delete coordinate;
     delete camera;
     //texture->destroy();
+
 }
 
 void GLWidget::initializeGL()
@@ -37,42 +40,42 @@ void GLWidget::initializeGL()
     cube = new Cube();
     cube->init();
 
-    plane = new Plane();
-    plane->init();
+    //plane = new Plane();
+    //plane->init();
 
-    coordinate = new Coordinate();
-    coordinate->init();
+    //coordinate = new Coordinate();
+    //coordinate->init();
 
-    core->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),reinterpret_cast<void*>(3*sizeof(GLfloat)));
-    core->glEnableVertexAttribArray(1);
-
-    ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vs", ":/shaders/coordinate.fs");
+    //ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vs", ":/shaders/coordinate.fs");
     ResourceManager::loadShader("cube", ":/shaders/cube.vs", ":/shaders/cube.fs");
-    ResourceManager::loadShader("plane", ":/shaders/plane.vs", ":/shaders/plane.fs");
+    ResourceManager::loadShader("light", ":/shaders/light.vs", ":/shaders/light.fs");
+    //ResourceManager::loadShader("plane", ":/shaders/plane.vs", ":/shaders/plane.fs");
 
-    ResourceManager::loadTexture("brickwall", ":/textures/brickwall.jpg");
-    ResourceManager::loadTexture("cementwall", ":/textures/cementwall.jpg");
+    //ResourceManager::loadTexture("brickwall", ":/textures/brickwall.jpg");
+    //ResourceManager::loadTexture("cementwall", ":/textures/cementwall.jpg");
 
     /***********  cube shader **************/
-    QMatrix4x4 model;
-    ResourceManager::getShader("cube").use().setMatrix4f("model", model);
-    ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
+    //QMatrix4x4 model;
+    //ResourceManager::getShader("cube").use().setMatrix4f("model", model);
+    //ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
+    ResourceManager::getShader("cube").use().setVector3f("objectColor",QVector3D(1.0f,0.5f,0.31f));
+    ResourceManager::getShader("cube").use().setVector3f("lightColor",QVector3D(1.0f,1.0f,1.0f));
 
     /***********  plane shader**************/
-    model.setToIdentity();
-    model.translate(0.0f, -0.8f, 0.0f);
-    model.scale(2.0f);
-    ResourceManager::getShader("plane").use().setMatrix4f("model", model);
-    ResourceManager::getShader("plane").use().setInteger("ambientMap", 0);
+    //model.setToIdentity();
+    //model.translate(0.0f, -0.8f, 0.0f);
+    //model.scale(2.0f);
+    //ResourceManager::getShader("plane").use().setMatrix4f("model", model);
+    //ResourceManager::getShader("plane").use().setInteger("ambientMap", 0);
 
 
     /***********  coordinate shader**************/
-    model.setToIdentity();
-    model.scale(20.0f);
-    ResourceManager::getShader("coordinate").use().setMatrix4f("model", model);
+    //model.setToIdentity();
+    //model.scale(20.0f);
+    //ResourceManager::getShader("coordinate").use().setMatrix4f("model", model);
 
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.3f,0.3f,0.3f,1.0f);
+    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -91,17 +94,21 @@ void GLWidget::paintGL()
     this->updateGL();
 
     ResourceManager::getShader("cube").use();
-    core->glActiveTexture(GL_TEXTURE0);
-    ResourceManager::getTexture("brickwall").bind();
-    cube->draw(GL_TRUE);
+    cube->drawCube();
 
-    ResourceManager::getShader("plane").use();
-    core->glActiveTexture(GL_TEXTURE0);
-    ResourceManager::getTexture("cementwall").bind();
-    plane->draw(GL_TRUE);
+    ResourceManager::getShader("light").use();
+    cube->drawLight();
+    //core->glActiveTexture(GL_TEXTURE0);
+    //ResourceManager::getTexture("brickwall").bind();
+    //cube->draw(GL_TRUE);
 
-    ResourceManager::getShader("coordinate").use();
-    coordinate->draw();
+    //ResourceManager::getShader("plane").use();
+    //core->glActiveTexture(GL_TEXTURE0);
+    //ResourceManager::getTexture("cementwall").bind();
+    //plane->draw(GL_TRUE);
+
+    //ResourceManager::getShader("coordinate").use();
+    //coordinate->draw();
 
     update();
 }
@@ -128,18 +135,25 @@ void GLWidget::updateGL(){
   else
     core->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  QMatrix4x4 projection, view;
-  projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 2000.f);
+  //QMatrix4x4 projection, view;
+  QMatrix4x4 projection, view, model;
+  projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
 
   ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("cube").use().setMatrix4f("view", view);
+  ResourceManager::getShader("cube").use().setMatrix4f("model", model);
 
-  ResourceManager::getShader("plane").use().setMatrix4f("projection", projection);
-  ResourceManager::getShader("plane").use().setMatrix4f("view", view);
+  model.translate(QVector3D(1.0f,0.8f,0.8f));
+  model.scale(0.2f);
+  ResourceManager::getShader("light").use().setMatrix4f("projection", projection);
+  ResourceManager::getShader("light").use().setMatrix4f("view", view);
+  ResourceManager::getShader("light").use().setMatrix4f("model", model);
+  //ResourceManager::getShader("plane").use().setMatrix4f("projection", projection);
+  //ResourceManager::getShader("plane").use().setMatrix4f("view", view);
 
-  ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
-  ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
+  //ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
+  //ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
