@@ -66,6 +66,8 @@ void Cube::init(){
   core->glBindVertexArray(cubeVAO);
     core->glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(0));
     core->glEnableVertexAttribArray(0);
+    core->glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(5*sizeof(float)));
+    core->glEnableVertexAttribArray(1);
   core->glBindVertexArray(0);
 
   core->glBindVertexArray(lightVAO);

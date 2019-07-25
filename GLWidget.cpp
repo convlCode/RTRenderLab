@@ -12,8 +12,8 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 GLWidget::~GLWidget()
 {
     delete cube;
-    delete plane;
-    delete coordinate;
+    //delete plane;
+    //delete coordinate;
     delete camera;
     //texture->destroy();
 
@@ -60,6 +60,7 @@ void GLWidget::initializeGL()
     //ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
     ResourceManager::getShader("cube").use().setVector3f("objectColor",QVector3D(1.0f,0.5f,0.31f));
     ResourceManager::getShader("cube").use().setVector3f("lightColor",QVector3D(1.0f,1.0f,1.0f));
+    ResourceManager::getShader("cube").use().setVector3f("lightPos",QVector3D(1.0f,0.8f,0.8f));
 
     /***********  plane shader**************/
     //model.setToIdentity();
