@@ -144,6 +144,7 @@ void GLWidget::updateGL(){
   ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("cube").use().setMatrix4f("view", view);
   ResourceManager::getShader("cube").use().setMatrix4f("model", model);
+  ResourceManager::getShader("cube").use().setVector3f("viewPos", camera->position);
 
   model.translate(QVector3D(1.0f,0.8f,0.8f));
   model.scale(0.2f);
