@@ -39,11 +39,12 @@ protected:
 private:
 
     //void processInput(GLfloat dt);
-    void updateGL();
+    void updateGL(GLfloat dt);
 
     QOpenGLFunctions_3_3_Core* core;
 
     QTime time;
+    GLfloat timeCount;
 
     Camera* camera;
 

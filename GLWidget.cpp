@@ -4,7 +4,7 @@
 #include "ResourceManager.h"
 
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
-    :QOpenGLWidget(parent, f)
+    :QOpenGLWidget(parent, f),timeCount{0.0f}
 {
     //this->grabKeyboard(); we can set the focusPolicy to get the keyboard.
 }
@@ -65,8 +65,8 @@ void GLWidget::initializeGL()
     ResourceManager::getShader("cube").use().setVector3f("material.specularCol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setFloat("material.shininess",32.0f);
 
-    ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
-    ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
+    //ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
+    //ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
     ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
 
@@ -100,7 +100,7 @@ void GLWidget::paintGL()
     lastFrame = currentFrame;
 
     camera->processInput(deltaTime);
-    this->updateGL();
+    this->updateGL(deltaTime);
 
     ResourceManager::getShader("cube").use();
     cube->drawCube();
@@ -138,7 +138,7 @@ void GLWidget::processInput(GLfloat dt){
 
 }*/
 
-void GLWidget::updateGL(){
+void GLWidget::updateGL(GLfloat dt){
   if(this->isLineMode)
     core->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   else
@@ -165,6 +165,17 @@ void GLWidget::updateGL(){
 
   //ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
   //ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
+  QVector3D lightColor, ambientVol, diffuseVol;
+  timeCount += dt*0.08f;
+  lightColor.setX(sin(timeCount*2.0f));
+  lightColor.setY(sin(timeCount*0.7f));
+  lightColor.setZ(sin(timeCount*1.3f));
+
+  diffuseVol = lightColor * 0.5f;
+  ambientVol = lightColor * 0.3f;
+
+  ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",diffuseVol);
+  ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",ambientVol);
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
