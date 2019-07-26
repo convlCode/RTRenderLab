@@ -16,7 +16,7 @@ GLWidget::~GLWidget()
     //delete coordinate;
     delete camera;
     //texture->destroy();
-
+    ResourceManager::clear();
 }
 
 void GLWidget::initializeGL()
@@ -40,48 +40,19 @@ void GLWidget::initializeGL()
     cube = new Cube();
     cube->init();
 
-    //plane = new Plane();
-    //plane->init();
-
-    //coordinate = new Coordinate();
-    //coordinate->init();
-
-    //ResourceManager::loadShader("coordinate", ":/shaders/coordinate.vs", ":/shaders/coordinate.fs");
     ResourceManager::loadShader("cube", ":/shaders/cube.vs", ":/shaders/cube.fs");
     ResourceManager::loadShader("light", ":/shaders/light.vs", ":/shaders/light.fs");
-    //ResourceManager::loadShader("plane", ":/shaders/plane.vs", ":/shaders/plane.fs");
 
-    //ResourceManager::loadTexture("brickwall", ":/textures/brickwall.jpg");
-    //ResourceManager::loadTexture("cementwall", ":/textures/cementwall.jpg");
+    //ResourceManager::getShader("cube").use().setVector3f("material.ambientCol",QVector3D(1.0f,0.5f,0.31f));
+    //ResourceManager::getShader("cube").use().setVector3f("material.diffuseCol",QVector3D(1.0f,0.5f,0.31f));
+    ResourceManager::getShader("cube").use().setInteger("material.diffuseCol",0);
+    ResourceManager::getShader("cube").use().setInteger("material.specularCol",1);
+    ResourceManager::getShader("cube").use().setFloat("material.shininess",64.0f);
 
-    /***********  cube shader **************/
-    //QMatrix4x4 model;
-    //ResourceManager::getShader("cube").use().setMatrix4f("model", model);
-    //ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
-    //ResourceManager::getShader("cube").use().setVector3f("objectColor",QVector3D(1.0f,0.5f,0.31f));
-
-    ResourceManager::getShader("cube").use().setVector3f("material.ambientCol",QVector3D(1.0f,0.5f,0.31f));
-    ResourceManager::getShader("cube").use().setVector3f("material.diffuseCol",QVector3D(1.0f,0.5f,0.31f));
-    ResourceManager::getShader("cube").use().setVector3f("material.specularCol",QVector3D(0.5f,0.5f,0.5f));
-    ResourceManager::getShader("cube").use().setFloat("material.shininess",32.0f);
-
-    //ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
-    //ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
+    ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
+    ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
     ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
-
-    /***********  plane shader**************/
-    //model.setToIdentity();
-    //model.translate(0.0f, -0.8f, 0.0f);
-    //model.scale(2.0f);
-    //ResourceManager::getShader("plane").use().setMatrix4f("model", model);
-    //ResourceManager::getShader("plane").use().setInteger("ambientMap", 0);
-
-
-    /***********  coordinate shader**************/
-    //model.setToIdentity();
-    //model.scale(20.0f);
-    //ResourceManager::getShader("coordinate").use().setMatrix4f("model", model);
 
     core->glEnable(GL_DEPTH_TEST);
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
@@ -107,17 +78,6 @@ void GLWidget::paintGL()
 
     ResourceManager::getShader("light").use();
     cube->drawLight();
-    //core->glActiveTexture(GL_TEXTURE0);
-    //ResourceManager::getTexture("brickwall").bind();
-    //cube->draw(GL_TRUE);
-
-    //ResourceManager::getShader("plane").use();
-    //core->glActiveTexture(GL_TEXTURE0);
-    //ResourceManager::getTexture("cementwall").bind();
-    //plane->draw(GL_TRUE);
-
-    //ResourceManager::getShader("coordinate").use();
-    //coordinate->draw();
 
     update();
 }
@@ -160,11 +120,7 @@ void GLWidget::updateGL(GLfloat dt){
   ResourceManager::getShader("light").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("light").use().setMatrix4f("view", view);
   ResourceManager::getShader("light").use().setMatrix4f("model", model);
-  //ResourceManager::getShader("plane").use().setMatrix4f("projection", projection);
-  //ResourceManager::getShader("plane").use().setMatrix4f("view", view);
-
-  //ResourceManager::getShader("coordinate").use().setMatrix4f("projection", projection);
-  //ResourceManager::getShader("coordinate").use().setMatrix4f("view", view);
+  /*
   QVector3D lightColor, ambientVol, diffuseVol;
   timeCount += dt*0.08f;
   lightColor.setX(sin(timeCount*2.0f));
@@ -175,7 +131,7 @@ void GLWidget::updateGL(GLfloat dt){
   ambientVol = lightColor * 0.3f;
 
   ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",diffuseVol);
-  ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",ambientVol);
+  ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",ambientVol);*/
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)

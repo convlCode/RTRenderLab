@@ -14,5 +14,7 @@
         <file>textures/cementwall.jpg</file>
         <file>shaders/light.fs</file>
         <file>shaders/light.vs</file>
+        <file>textures/container2.png</file>
+        <file>textures/container2_specular.png</file>
     </qresource>
 </RCC>
