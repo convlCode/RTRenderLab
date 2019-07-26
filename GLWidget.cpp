@@ -58,7 +58,13 @@ void GLWidget::initializeGL()
     //QMatrix4x4 model;
     //ResourceManager::getShader("cube").use().setMatrix4f("model", model);
     //ResourceManager::getShader("cube").use().setInteger("ambientMap", 0);
-    ResourceManager::getShader("cube").use().setVector3f("objectColor",QVector3D(1.0f,0.5f,0.31f));
+    //ResourceManager::getShader("cube").use().setVector3f("objectColor",QVector3D(1.0f,0.5f,0.31f));
+
+    ResourceManager::getShader("cube").use().setVector3f("material.ambientCol",QVector3D(1.0f,0.5f,0.31f));
+    ResourceManager::getShader("cube").use().setVector3f("material.diffuseCol",QVector3D(1.0f,0.5f,0.31f));
+    ResourceManager::getShader("cube").use().setVector3f("material.specularCol",QVector3D(0.5f,0.5f,0.5f));
+    ResourceManager::getShader("cube").use().setFloat("material.shininess",32.0f);
+
     ResourceManager::getShader("cube").use().setVector3f("lightColor",QVector3D(1.0f,1.0f,1.0f));
     ResourceManager::getShader("cube").use().setVector3f("lightPos",QVector3D(1.0f,0.8f,0.8f));
 
@@ -144,6 +150,7 @@ void GLWidget::updateGL(){
   ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("cube").use().setMatrix4f("view", view);
   ResourceManager::getShader("cube").use().setMatrix4f("model", model);
+
   ResourceManager::getShader("cube").use().setVector3f("viewPos", camera->position);
 
   model.translate(QVector3D(1.0f,0.8f,0.8f));
