@@ -52,7 +52,8 @@ void GLWidget::initializeGL()
     ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
     ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
-    ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
+    //ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
+    ResourceManager::getShader("cube").use().setVector3f("light.direction",QVector3D(-0.2f,-1.0f,-0.3f));
 
     core->glEnable(GL_DEPTH_TEST);
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
