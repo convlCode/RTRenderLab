@@ -64,11 +64,14 @@ void GLWidget::initializeGL()
     ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
     ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
-    //ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
-    ResourceManager::getShader("cube").use().setVector3f("light.direction",QVector3D(-0.2f,-1.0f,-0.3f));
+    ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
+    //ResourceManager::getShader("cube").use().setVector3f("light.direction",QVector3D(-0.2f,-1.0f,-0.3f)); // for directional light
+    ResourceManager::getShader("cube").use().setFloat("light.constant",1.0f);
+    ResourceManager::getShader("cube").use().setFloat("light.linear",0.09f);
+    ResourceManager::getShader("cube").use().setFloat("light.quadratic",0.032f);
 
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
+    core->glClearColor(0.1f,0.1f,0.1f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -100,8 +103,8 @@ void GLWidget::paintGL()
     //ResourceManager::getShader("cube").use();
     //cube->drawCube();
 
-    //ResourceManager::getShader("light").use();
-    //cube->drawLight();
+    ResourceManager::getShader("light").use();
+    cube->drawLight();
 
     update();
 }
@@ -128,8 +131,8 @@ void GLWidget::updateGL(GLfloat dt){
   else
     core->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  QMatrix4x4 projection, view;
-  //QMatrix4x4 projection, view, model;
+  //QMatrix4x4 projection, view;
+  QMatrix4x4 projection, view, model;
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
 
@@ -139,11 +142,11 @@ void GLWidget::updateGL(GLfloat dt){
 
   ResourceManager::getShader("cube").use().setVector3f("viewPos", camera->position);
 
-  //model.translate(QVector3D(1.0f,0.8f,0.8f));
-  //model.scale(0.2f);
+  model.translate(QVector3D(1.0f,0.8f,0.8f));
+  model.scale(0.2f);
   ResourceManager::getShader("light").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("light").use().setMatrix4f("view", view);
-  //ResourceManager::getShader("light").use().setMatrix4f("model", model);
+  ResourceManager::getShader("light").use().setMatrix4f("model", model);
   /*
   QVector3D lightColor, ambientVol, diffuseVol;
   timeCount += dt*0.08f;
