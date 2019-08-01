@@ -7,6 +7,18 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
     :QOpenGLWidget(parent, f),timeCount{0.0f}
 {
     //this->grabKeyboard(); we can set the focusPolicy to get the keyboard.
+    cubePositions = {
+         QVector3D( 0.0f,  0.0f,  -1.0f),
+         QVector3D( 2.0f,  5.0f, -15.0f),
+         QVector3D(-1.5f, -2.2f, -2.5f),
+         QVector3D(-3.8f, -2.0f, -12.3f),
+         QVector3D( 2.4f, -0.4f, -3.5f),
+         QVector3D(-1.7f,  3.0f, -7.5f),
+         QVector3D( 1.3f, -2.0f, -2.5f),
+         QVector3D( 1.5f,  2.0f, -2.5f),
+         QVector3D( 1.5f,  0.2f, -1.5f),
+         QVector3D(-1.3f,  1.0f, -1.5f)
+    };
 }
 
 GLWidget::~GLWidget()
@@ -71,14 +83,25 @@ void GLWidget::paintGL()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+
     camera->processInput(deltaTime);
     this->updateGL(deltaTime);
 
-    ResourceManager::getShader("cube").use();
-    cube->drawCube();
+    for(int i = 0;i<10;++i){
+         QMatrix4x4 model;
+         model.translate(cubePositions[i]);
+         GLfloat angle = 20.0f * i;
+         model.rotate(angle,QVector3D(1.0f,0.3f,0.5f));
 
-    ResourceManager::getShader("light").use();
-    cube->drawLight();
+         ResourceManager::getShader("cube").use().setMatrix4f("model",model);
+         cube->drawCube();
+    }
+
+    //ResourceManager::getShader("cube").use();
+    //cube->drawCube();
+
+    //ResourceManager::getShader("light").use();
+    //cube->drawLight();
 
     update();
 }
@@ -105,22 +128,22 @@ void GLWidget::updateGL(GLfloat dt){
   else
     core->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  //QMatrix4x4 projection, view;
-  QMatrix4x4 projection, view, model;
+  QMatrix4x4 projection, view;
+  //QMatrix4x4 projection, view, model;
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
 
   ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("cube").use().setMatrix4f("view", view);
-  ResourceManager::getShader("cube").use().setMatrix4f("model", model);
+  //ResourceManager::getShader("cube").use().setMatrix4f("model", model);
 
   ResourceManager::getShader("cube").use().setVector3f("viewPos", camera->position);
 
-  model.translate(QVector3D(1.0f,0.8f,0.8f));
-  model.scale(0.2f);
+  //model.translate(QVector3D(1.0f,0.8f,0.8f));
+  //model.scale(0.2f);
   ResourceManager::getShader("light").use().setMatrix4f("projection", projection);
   ResourceManager::getShader("light").use().setMatrix4f("view", view);
-  ResourceManager::getShader("light").use().setMatrix4f("model", model);
+  //ResourceManager::getShader("light").use().setMatrix4f("model", model);
   /*
   QVector3D lightColor, ambientVol, diffuseVol;
   timeCount += dt*0.08f;

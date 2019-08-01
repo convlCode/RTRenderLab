@@ -60,6 +60,8 @@ private:
     Coordinate *coordinate;
     Cube *cube;
     Plane *plane;
+
+    QVector<QVector3D> cubePositions;
 };
 
 #endif // GLWIDGET_H
