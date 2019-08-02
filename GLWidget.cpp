@@ -8,16 +8,16 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 {
     //this->grabKeyboard(); we can set the focusPolicy to get the keyboard.
     cubePositions = {
-         QVector3D( 0.0f,  0.0f,  -1.0f),
-         QVector3D( 2.0f,  5.0f, -15.0f),
-         QVector3D(-1.5f, -2.2f, -2.5f),
-         QVector3D(-3.8f, -2.0f, -12.3f),
-         QVector3D( 2.4f, -0.4f, -3.5f),
-         QVector3D(-1.7f,  3.0f, -7.5f),
-         QVector3D( 1.3f, -2.0f, -2.5f),
-         QVector3D( 1.5f,  2.0f, -2.5f),
-         QVector3D( 1.5f,  0.2f, -1.5f),
-         QVector3D(-1.3f,  1.0f, -1.5f)
+        QVector3D( 0.0f,  0.0f,  0.0f)
+        //QVector3D( 2.0f,  5.0f, -15.0f),
+        //QVector3D(-1.5f, -2.2f, -2.5f),
+        //QVector3D(-3.8f, -2.0f, -12.3f),
+        //QVector3D( 2.4f, -0.4f, -3.5f),
+        //QVector3D(-1.7f,  3.0f, -7.5f),
+        //QVector3D( 1.3f, -2.0f, -2.5f),
+        //QVector3D( 1.5f,  2.0f, -2.5f),
+        //QVector3D( 1.5f,  0.2f, -1.5f),
+        //QVector3D(-1.3f,  1.0f, -1.5f)
     };
 }
 
@@ -64,11 +64,12 @@ void GLWidget::initializeGL()
     ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
     ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
     ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
-    ResourceManager::getShader("cube").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
-    //ResourceManager::getShader("cube").use().setVector3f("light.direction",QVector3D(-0.2f,-1.0f,-0.3f)); // for directional light
-    ResourceManager::getShader("cube").use().setFloat("light.constant",1.0f);
-    ResourceManager::getShader("cube").use().setFloat("light.linear",0.09f);
-    ResourceManager::getShader("cube").use().setFloat("light.quadratic",0.032f);
+    ResourceManager::getShader("cube").use().setVector3f("light.position",camera->position);
+    ResourceManager::getShader("cube").use().setVector3f("light.direction",camera->front); // for directional light
+    ResourceManager::getShader("cube").use().setFloat("light.cutOff",cos(12.5f / 180.0f * 3.14f));
+    //ResourceManager::getShader("cube").use().setFloat("light.constant",1.0f);
+    //ResourceManager::getShader("cube").use().setFloat("light.linear",0.09f);
+    //ResourceManager::getShader("cube").use().setFloat("light.quadratic",0.032f);
 
     core->glEnable(GL_DEPTH_TEST);
     core->glClearColor(0.1f,0.1f,0.1f,1.0f);
@@ -90,11 +91,11 @@ void GLWidget::paintGL()
     camera->processInput(deltaTime);
     this->updateGL(deltaTime);
 
-    for(int i = 0;i<10;++i){
+    for(int i = 0;i<cubePositions.size();++i){
          QMatrix4x4 model;
          model.translate(cubePositions[i]);
-         GLfloat angle = 20.0f * i;
-         model.rotate(angle,QVector3D(1.0f,0.3f,0.5f));
+         //GLfloat angle = 20.0f * i;
+         //model.rotate(angle,QVector3D(1.0f,0.3f,0.5f));
 
          ResourceManager::getShader("cube").use().setMatrix4f("model",model);
          cube->drawCube();
@@ -103,8 +104,8 @@ void GLWidget::paintGL()
     //ResourceManager::getShader("cube").use();
     //cube->drawCube();
 
-    ResourceManager::getShader("light").use();
-    cube->drawLight();
+    //ResourceManager::getShader("light").use();
+    //cube->drawLight();
 
     update();
 }
