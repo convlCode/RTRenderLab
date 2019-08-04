@@ -25,6 +25,7 @@ CONFIG += c++11
 
 SOURCES += \
     Camera.cpp \
+    Mesh.cpp \
     ResourceManager.cpp \
     Texture2D.cpp \
         main.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
 
 HEADERS += \
     Camera.h \
+    Mesh.h \
     ResourceManager.h \
     Texture2D.h \
         mainwindow.h \
@@ -56,3 +58,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     shaders.qrc
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../openglDev/assimpLib/lib/ -lassimp-vc140-mt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../openglDev/assimpLib/lib/ -lassimp-vc140-mtd
+
+INCLUDEPATH += $$PWD/../../../openglDev/assimpLib/include
+DEPENDPATH += $$PWD/../../../openglDev/assimpLib/include

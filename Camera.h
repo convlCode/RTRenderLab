@@ -1,13 +1,11 @@
 ﻿#ifndef CAMERA_H
 #define CAMERA_H
 
-
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <QKeyEvent>
 #include <QOpenGLShader>
 #include <QDebug>
-
 
 enum Camera_Movement {
   FORWARD,
