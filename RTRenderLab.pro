@@ -26,6 +26,7 @@ CONFIG += c++11
 SOURCES += \
     Camera.cpp \
     Mesh.cpp \
+    Model.cpp \
     ResourceManager.cpp \
     Texture2D.cpp \
         main.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
 HEADERS += \
     Camera.h \
     Mesh.h \
+    Model.h \
     ResourceManager.h \
     Texture2D.h \
         mainwindow.h \
