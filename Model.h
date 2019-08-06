@@ -24,7 +24,7 @@ private:
     void loadModel(QString const& path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh,const aiScene* scene);
-    QVector<Texture> loadMaterialTexture(aiMaterial* mat,aiTextureType type,QString typeName);
+    QVector<Texture> loadMaterialTextures(aiMaterial* mat,aiTextureType type,QString typeName);
 
     QOpenGLFunctions_3_3_Core *core;
 };
