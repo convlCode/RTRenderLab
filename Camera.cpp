@@ -1,4 +1,5 @@
 ﻿#include "Camera.h"
+#include <QtMath>
 #include <QDebug>
 QMatrix4x4 Camera::getViewMatrix()
 {
@@ -71,8 +72,12 @@ void Camera::processInput(GLfloat dt)
 
 void Camera::updateCameraVectors()
 {
-  QVector3D front3(cos(this->yaw) * cos(this->picth), sin(this->picth), sin(this->yaw) * cos(this->picth));
-  this->front = front3.normalized();
-  this->right = QVector3D::crossProduct(this->front, this->worldUp).normalized();
-  this->up = QVector3D::crossProduct(this->right, this->front).normalized();
+    float yawR = qDegreesToRadians(this->yaw);
+    float picthR = qDegreesToRadians(this->picth);
+
+    QVector3D front3(cos(yawR) * cos(picthR), sin(picthR), sin(yawR) * cos(picthR));
+
+    this->front = front3.normalized();
+    this->right = QVector3D::crossProduct(this->front, this->worldUp).normalized();
+    this->up = QVector3D::crossProduct(this->right, this->front).normalized();
 }
