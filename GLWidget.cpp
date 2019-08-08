@@ -8,27 +8,27 @@ GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
 {
     //this->grabKeyboard(); we can set the focusPolicy to get the keyboard.
     cubePositions = {
-        QVector3D( 0.0f,  0.0f,  0.0f)
-        //QVector3D( 2.0f,  5.0f, -15.0f),
-        //QVector3D(-1.5f, -2.2f, -2.5f),
-        //QVector3D(-3.8f, -2.0f, -12.3f),
-        //QVector3D( 2.4f, -0.4f, -3.5f),
-        //QVector3D(-1.7f,  3.0f, -7.5f),
-        //QVector3D( 1.3f, -2.0f, -2.5f),
-        //QVector3D( 1.5f,  2.0f, -2.5f),
-        //QVector3D( 1.5f,  0.2f, -1.5f),
-        //QVector3D(-1.3f,  1.0f, -1.5f)
+        QVector3D( 0.0f,  0.0f,  0.0f),
+        QVector3D( 2.0f,  5.0f, -15.0f),
+        QVector3D(-1.5f, -2.2f, -2.5f),
+        QVector3D(-3.8f, -2.0f, -12.3f),
+        QVector3D( 2.4f, -0.4f, -3.5f),
+        QVector3D(-1.7f,  3.0f, -7.5f),
+        QVector3D( 1.3f, -2.0f, -2.5f),
+        QVector3D( 1.5f,  2.0f, -2.5f),
+        QVector3D( 1.5f,  0.2f, -1.5f),
+        QVector3D(-1.3f,  1.0f, -1.5f)
     };
 }
 
 GLWidget::~GLWidget()
 {
-    delete cube;
+    //delete cube;
     //delete plane;
     //delete coordinate;
     delete camera;
     //texture->destroy();
-    ResourceManager::clear();
+    //ResourceManager::clear();
 }
 
 void GLWidget::initializeGL()
@@ -49,30 +49,18 @@ void GLWidget::initializeGL()
 
     camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
 
-    cube = new Cube();
-    cube->init();
+    pmodel = new Model("D:/Qt/qtProjects/RTRenderLab/nanosuit/nanosuit.obj");
 
-    ResourceManager::loadShader("cube", ":/shaders/cube.vs", ":/shaders/cube.fs");
-    ResourceManager::loadShader("light", ":/shaders/light.vs", ":/shaders/light.fs");
+    core->glBindBuffer(GL_ARRAY_BUFFER,0);
+    core->glBindVertexArray(0);
 
-    //ResourceManager::getShader("cube").use().setVector3f("material.ambientCol",QVector3D(1.0f,0.5f,0.31f));
-    //ResourceManager::getShader("cube").use().setVector3f("material.diffuseCol",QVector3D(1.0f,0.5f,0.31f));
-    ResourceManager::getShader("cube").use().setInteger("material.diffuseCol",0);
-    ResourceManager::getShader("cube").use().setInteger("material.specularCol",1);
-    ResourceManager::getShader("cube").use().setFloat("material.shininess",64.0f);
-
-    ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",QVector3D(0.2f,0.2f,0.2f));
-    ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",QVector3D(0.5f,0.5f,0.5f));
-    ResourceManager::getShader("cube").use().setVector3f("light.specularVol",QVector3D(1.0f,1.0f,1.0f));
-    ResourceManager::getShader("cube").use().setVector3f("light.position",camera->position);
-    ResourceManager::getShader("cube").use().setVector3f("light.direction",camera->front); // for directional light
-    ResourceManager::getShader("cube").use().setFloat("light.cutOff",cos(12.5f / 180.0f * 3.14f));
-    //ResourceManager::getShader("cube").use().setFloat("light.constant",1.0f);
-    //ResourceManager::getShader("cube").use().setFloat("light.linear",0.09f);
-    //ResourceManager::getShader("cube").use().setFloat("light.quadratic",0.032f);
+    //program->addShaderFromSourceFile(QOpenGLShader::Vertex,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.vs");
+    //program->addShaderFromSourceFile(QOpenGLShader::Fragment,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.fs");
+    //program->link();
+    ResourceManager::loadShader("modelLoad",":/shaders/modelLoad.vs",":/shaders/modelLoad.fs");
 
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.1f,0.1f,0.1f,1.0f);
+    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -91,21 +79,10 @@ void GLWidget::paintGL()
     camera->processInput(deltaTime);
     this->updateGL(deltaTime);
 
-    for(int i = 0;i<cubePositions.size();++i){
-         QMatrix4x4 model;
-         model.translate(cubePositions[i]);
-         //GLfloat angle = 20.0f * i;
-         //model.rotate(angle,QVector3D(1.0f,0.3f,0.5f));
 
-         ResourceManager::getShader("cube").use().setMatrix4f("model",model);
-         cube->drawCube();
-    }
+    ResourceManager::getShader("modelLoad").use();
 
-    //ResourceManager::getShader("cube").use();
-    //cube->drawCube();
-
-    //ResourceManager::getShader("light").use();
-    //cube->drawLight();
+    pmodel->Draw(ResourceManager::getShader("modelLoad").shaderProgram);
 
     update();
 }
@@ -136,30 +113,10 @@ void GLWidget::updateGL(GLfloat dt){
   QMatrix4x4 projection, view, model;
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
-
-  ResourceManager::getShader("cube").use().setMatrix4f("projection", projection);
-  ResourceManager::getShader("cube").use().setMatrix4f("view", view);
-  //ResourceManager::getShader("cube").use().setMatrix4f("model", model);
-
-  ResourceManager::getShader("cube").use().setVector3f("viewPos", camera->position);
-
-  model.translate(QVector3D(1.0f,0.8f,0.8f));
-  model.scale(0.2f);
-  ResourceManager::getShader("light").use().setMatrix4f("projection", projection);
-  ResourceManager::getShader("light").use().setMatrix4f("view", view);
-  ResourceManager::getShader("light").use().setMatrix4f("model", model);
-  /*
-  QVector3D lightColor, ambientVol, diffuseVol;
-  timeCount += dt*0.08f;
-  lightColor.setX(sin(timeCount*2.0f));
-  lightColor.setY(sin(timeCount*0.7f));
-  lightColor.setZ(sin(timeCount*1.3f));
-
-  diffuseVol = lightColor * 0.5f;
-  ambientVol = lightColor * 0.3f;
-
-  ResourceManager::getShader("cube").use().setVector3f("light.ambientVol",diffuseVol);
-  ResourceManager::getShader("cube").use().setVector3f("light.diffuseVol",ambientVol);*/
+  model.scale(0.015f, 0.015f, 0.015f);
+  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
+  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",view);
+  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",model);
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)

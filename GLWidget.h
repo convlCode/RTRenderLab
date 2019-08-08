@@ -13,6 +13,7 @@
 #include "renderOBJ/Cube.h"
 #include "renderOBJ/Plane.h"
 #include "renderOBJ/Coordinate.h"
+#include "Model.h"
 
 class GLWidget : public QOpenGLWidget
 {
@@ -60,6 +61,9 @@ private:
     Coordinate *coordinate;
     Cube *cube;
     Plane *plane;
+
+    Model* pmodel;
+    //QOpenGLShaderProgram* program;
 
     QVector<QVector3D> cubePositions;
 };

@@ -1,16 +1,21 @@
 ﻿#include "Mesh.h"
 
 Mesh::Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Texture> textures)
+    :isInitialized(false)
 {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
-
-    setupMesh();
+    core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
 }
 
-void Mesh::draw(Shader shader)
+void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
 {
+    if(!isInitialized){
+        setupMesh(shaderProgram);
+        isInitialized = true;
+    }
+
     // bind appropriate textures
     unsigned int diffuseNr  = 1;
     unsigned int specularNr = 1;
@@ -19,7 +24,7 @@ void Mesh::draw(Shader shader)
 
     for(int i = 0; i < textures.size(); i++)
     {
-        core->glActiveTexture(GL_TEXTURE0 + static_cast<unsigned int>(i)); // active proper texture unit before binding
+        //core->glActiveTexture(GL_TEXTURE0 + static_cast<unsigned int>(i)); // active proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
         QString number;
         QString name = textures[i].type;
@@ -34,9 +39,12 @@ void Mesh::draw(Shader shader)
 
                                                  // now set the sampler to the correct texture unit
         //core->glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-        shader.setInteger(name+number,i);
+        QString uniformName = QString(name + number);
+        qDebug() << uniformName <<endl;
+        shaderProgram->setUniformValue(QString(name + number).toLocal8Bit().constData(), i);
         // and finally bind the texture
-        core->glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        textures[i].texture->bind(static_cast<unsigned int>(i));
+        //core->glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
 
     // draw mesh
@@ -45,10 +53,10 @@ void Mesh::draw(Shader shader)
     core->glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
-    core->glActiveTexture(GL_TEXTURE0);
+    //core->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::setupMesh()
+void Mesh::setupMesh(QOpenGLShaderProgram* shaderProgram)
 {
     // create buffers/arrays
     core->glGenVertexArrays(1, &VAO);

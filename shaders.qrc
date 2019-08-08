@@ -16,5 +16,7 @@
         <file>shaders/light.vs</file>
         <file>textures/container2.png</file>
         <file>textures/container2_specular.png</file>
+        <file>shaders/modelLoad.fs</file>
+        <file>shaders/modelLoad.vs</file>
     </qresource>
 </RCC>

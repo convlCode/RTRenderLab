@@ -61,8 +61,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     shaders.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../openglDev/assimpLib/lib/ -lassimp-vc140-mt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../openglDev/assimpLib/lib/ -lassimp-vc140-mtd
+win32: LIBS += -L$$PWD/../../../openglDev/assimpLib/lib/ -lassimp-vc140-mt
 
 INCLUDEPATH += $$PWD/../../../openglDev/assimpLib/include
 DEPENDPATH += $$PWD/../../../openglDev/assimpLib/include

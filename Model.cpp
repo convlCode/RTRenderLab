@@ -1,15 +1,29 @@
 ﻿#include "Model.h"
 
+static QSharedPointer<QOpenGLTexture> textureFromFile(const QString &path, const QString &directory)
+{
+    QString fileName = directory + '/' + path;
+
+    QImage image(fileName);
+    QSharedPointer<QOpenGLTexture> texture(new QOpenGLTexture(image));
+
+    texture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::Repeat);
+    texture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::Repeat);
+    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    texture->setMagnificationFilter(QOpenGLTexture::Linear);
+    return texture;
+}
+
 Model::Model(QString const &path, bool gamma)
     : gammaCorrection{gamma}
 {
     loadModel(path);
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(QOpenGLShaderProgram* shaderProgram)
 {
     for(int i=0;i < meshes.size();++i){
-        meshes[i].draw(shader);
+        meshes[i].draw(shaderProgram);
     }
 }
 
@@ -17,7 +31,8 @@ void Model::loadModel(const QString &path)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path.toStdString(),aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    directory = path.mid(0,path.lastIndexOf('/'));
+    //directory = path.mid(0,path.lastIndexOf('/'));
+    directory = path.left(path.lastIndexOf("/"));
     processNode(scene->mRootNode,scene);
 }
 
@@ -75,6 +90,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         vector.setY(mesh->mBitangents[i].y);
         vector.setZ(mesh->mBitangents[i].z);
         vertex.Bitangent = vector;
+
         vertices.push_back(vertex);
     }
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
@@ -122,8 +138,10 @@ QVector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type
         mat->GetTexture(type, i, &str);
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
+        QString path(str.C_Str());
+        path.right(path.length()-path.lastIndexOf('\\')-1);
         for(int j = 0; j < textures_loaded.size(); j++){
-            if(qstrcmp(textures_loaded[j].path.toUtf8(), str.C_Str()) == 0){
+            if(textures_loaded[j].fileName == path){
                 textures.push_back(textures_loaded[j]);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization
                 break;
@@ -131,9 +149,10 @@ QVector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type
         }
         if(!skip){   // if texture hasn't been loaded already, load it
             Texture texture;
-            //texture.id = TextureFromFile(str.C_Str(), this->directory);
+            texture.texture = textureFromFile(path, this->directory);
             texture.type = typeName;
-            texture.path = str.C_Str();
+            texture.fileName = path;
+
             textures.push_back(texture);
             textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }

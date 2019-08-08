@@ -6,7 +6,7 @@
 #include <QVector3D>
 #include <QString>
 #include "Texture2D.h"
-#include <Shader.h>
+#include <QOpenGLShaderProgram>
 
 struct Vertex {
     // position
@@ -22,9 +22,10 @@ struct Vertex {
 };
 
 struct Texture {
-    unsigned int id;
+    //unsigned int id;
     QString type;
-    QString path;
+    QString fileName;
+    QSharedPointer<QOpenGLTexture> texture;
 };
 
 class Mesh
@@ -34,15 +35,16 @@ public:
     QVector<unsigned int> indices;
     QVector<Texture> textures;
     unsigned int VAO;
+    unsigned int VBO, EBO;
     QOpenGLFunctions_3_3_Core* core;
+    bool isInitialized;
 
     Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Texture> textures);
 
-    void draw(Shader shader);
+    void draw(QOpenGLShaderProgram* shaderProgram);
 
 private:
-    unsigned int VBO, EBO;
-    void setupMesh();
+    void setupMesh(QOpenGLShaderProgram* shaderProgram);
 };
 
 #endif // MESH_H

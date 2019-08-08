@@ -33,6 +33,7 @@ Texture2D ResourceManager::getTexture(const QString&  name){
 }
 
 void ResourceManager::clear(){
+
   for (std::map<QString, Shader>::iterator iter = map_Shaders.begin(); iter != map_Shaders.end(); ++iter)
     delete iter->second.shaderProgram;
   for (std::map<QString, Texture2D>::iterator iter = map_Textures.begin(); iter != map_Textures.end(); ++iter)
