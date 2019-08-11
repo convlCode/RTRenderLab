@@ -58,7 +58,7 @@ void Cube::init(){
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
   };
   core->glGenVertexArrays(1,&cubeVAO);
-  core->glGenVertexArrays(1,&lightVAO);
+  //core->glGenVertexArrays(1,&lightVAO);
   core->glGenBuffers(1, &VBO);
 
   core->glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -67,12 +67,12 @@ void Cube::init(){
   core->glBindVertexArray(cubeVAO);
     core->glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(0));
     core->glEnableVertexAttribArray(0);
-    core->glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(3*sizeof(float)));
-    core->glEnableVertexAttribArray(1);
-    core->glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(6*sizeof(float)));
-    core->glEnableVertexAttribArray(2);
+    //core->glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(3*sizeof(float)));
+    //core->glEnableVertexAttribArray(1);
+    //core->glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(6*sizeof(float)));
+    //core->glEnableVertexAttribArray(2);
   core->glBindVertexArray(0);
-
+/*
   core->glBindVertexArray(lightVAO);
     core->glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(0));
     core->glEnableVertexAttribArray(0);
@@ -81,15 +81,15 @@ void Cube::init(){
   core->glDeleteBuffers(1,&VBO);
 
   ResourceManager::loadTexture("container2",":/textures/container2.png");
-  ResourceManager::loadTexture("container2_specular",":/textures/container2_specular.png");
+  ResourceManager::loadTexture("container2_specular",":/textures/container2_specular.png");*/
 }
 
 void Cube::drawCube()
 {
-    core->glActiveTexture(GL_TEXTURE0);
-    ResourceManager::getTexture("container2").bind();
-    core->glActiveTexture(GL_TEXTURE1);
-    ResourceManager::getTexture("container2_specular").bind();
+    //core->glActiveTexture(GL_TEXTURE0);
+    //ResourceManager::getTexture("container2").bind();
+    //core->glActiveTexture(GL_TEXTURE1);
+    //ResourceManager::getTexture("container2_specular").bind();
 
     core->glBindVertexArray(cubeVAO);
     core->glDrawArrays(GL_TRIANGLES,0,36);

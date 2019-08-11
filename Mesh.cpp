@@ -1,4 +1,5 @@
 ﻿#include "Mesh.h"
+#include "ResourceManager.h"
 
 Mesh::Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Texture> textures)
     :isInitialized(false)
@@ -40,8 +41,8 @@ void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
                                                  // now set the sampler to the correct texture unit
         //core->glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
         QString uniformName = QString(name + number);
-        qDebug() << uniformName <<endl;
-        shaderProgram->setUniformValue(QString(name + number).toLocal8Bit().constData(), i);
+        //shaderProgram->setUniformValue(QString(name + number).toLocal8Bit().constData(), i);
+        ResourceManager::getShader("modelLoad").use().setInteger(uniformName,i);
         // and finally bind the texture
         textures[i].texture->bind(static_cast<unsigned int>(i));
         //core->glBindTexture(GL_TEXTURE_2D, textures[i].id);
@@ -53,7 +54,7 @@ void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
     core->glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
-    //core->glActiveTexture(GL_TEXTURE0);
+    core->glActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::setupMesh(QOpenGLShaderProgram* shaderProgram)

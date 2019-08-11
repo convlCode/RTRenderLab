@@ -18,5 +18,7 @@
         <file>textures/container2_specular.png</file>
         <file>shaders/modelLoad.fs</file>
         <file>shaders/modelLoad.vs</file>
+        <file>shaders/cubeTest.fs</file>
+        <file>shaders/cubeTest.vs</file>
     </qresource>
 </RCC>

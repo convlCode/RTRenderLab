@@ -51,13 +51,15 @@ void GLWidget::initializeGL()
 
     pmodel = new Model("D:/Qt/qtProjects/RTRenderLab/nanosuit/nanosuit.obj");
 
-    core->glBindBuffer(GL_ARRAY_BUFFER,0);
-    core->glBindVertexArray(0);
+    //cube = new Cube();
+    //cube->init();
 
     //program->addShaderFromSourceFile(QOpenGLShader::Vertex,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.vs");
     //program->addShaderFromSourceFile(QOpenGLShader::Fragment,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.fs");
     //program->link();
     ResourceManager::loadShader("modelLoad",":/shaders/modelLoad.vs",":/shaders/modelLoad.fs");
+
+    //ResourceManager::loadShader("cubeTest",":/shaders/cubeTest.vs",":/shaders/cubeTest.fs");
 
     core->glEnable(GL_DEPTH_TEST);
     core->glClearColor(0.2f,0.3f,0.3f,1.0f);
@@ -80,8 +82,9 @@ void GLWidget::paintGL()
     this->updateGL(deltaTime);
 
 
+    //ResourceManager::getShader("cubeTest").use();
+    //cube->drawCube();
     ResourceManager::getShader("modelLoad").use();
-
     pmodel->Draw(ResourceManager::getShader("modelLoad").shaderProgram);
 
     update();
@@ -113,10 +116,15 @@ void GLWidget::updateGL(GLfloat dt){
   QMatrix4x4 projection, view, model;
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
-  model.scale(0.015f, 0.015f, 0.015f);
+
+  model.scale(0.15f, 0.15f, 0.15f);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
-  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",view);
-  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",model);
+  ResourceManager::getShader("modelLoad").use().setMatrix4f("view",view);
+  ResourceManager::getShader("modelLoad").use().setMatrix4f("model",model);
+
+  /*ResourceManager::getShader("cubeTest").use().setMatrix4f("projection",projection);
+  ResourceManager::getShader("cubeTest").use().setMatrix4f("view",view);
+  ResourceManager::getShader("cubeTest").use().setMatrix4f("model",model);*/
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
