@@ -62,7 +62,8 @@ void GLWidget::initializeGL()
     //ResourceManager::loadShader("cubeTest",":/shaders/cubeTest.vs",":/shaders/cubeTest.fs");
 
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.2f,0.3f,0.3f,1.0f);
+    core->glClearColor(0.05f,0.05f,0.05f,1.0f);
+    //core->glClearColor(1.0f,1.0f,1.0f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -117,6 +118,7 @@ void GLWidget::updateGL(GLfloat dt){
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
   view = camera->getViewMatrix();
 
+  model.translate(0.0f,-1.1f,0.0f);
   model.scale(0.15f, 0.15f, 0.15f);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("view",view);

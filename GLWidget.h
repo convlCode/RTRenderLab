@@ -58,9 +58,7 @@ private:
     float   lastX;
     float   lastY;
 
-    Coordinate *coordinate;
     Cube *cube;
-    Plane *plane;
 
     Model* pmodel;
     //QOpenGLShaderProgram* program;
