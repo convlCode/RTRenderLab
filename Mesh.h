@@ -16,9 +16,9 @@ struct Vertex {
     // texCoords
     QVector3D TexCoords;
     // tangent
-    QVector3D Tangent;
+    //QVector3D Tangent;
     // bitangent
-    QVector3D Bitangent;
+    //QVector3D Bitangent;
 };
 
 struct Texture {
@@ -31,6 +31,9 @@ struct Texture {
 class Mesh
 {
 public:
+    Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Texture> textures);
+    ~Mesh();
+
     QVector<Vertex> vertices;
     QVector<unsigned int> indices;
     QVector<Texture> textures;
@@ -39,7 +42,6 @@ public:
     QOpenGLFunctions_3_3_Core* core;
     bool isInitialized;
 
-    Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Texture> textures);
 
     void draw(QOpenGLShaderProgram* shaderProgram);
 

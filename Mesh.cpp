@@ -10,6 +10,13 @@ Mesh::Mesh(QVector<Vertex> vertices,QVector<unsigned int> indices,QVector<Textur
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
 }
 
+Mesh::~Mesh()
+{
+    core->glDeleteBuffers(1,&VAO);
+    core->glDeleteBuffers(1,&VBO);
+    core->glDeleteBuffers(1,&EBO);
+}
+
 void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
 {
     if(!isInitialized){
@@ -25,7 +32,7 @@ void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
 
     for(int i = 0; i < textures.size(); i++)
     {
-        core->glActiveTexture(GL_TEXTURE0 + static_cast<unsigned int>(i)); // active proper texture unit before binding
+        //core->glActiveTexture(GL_TEXTURE0 + static_cast<unsigned int>(i)); // active proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
         QString number;
         QString name = textures[i].type;
@@ -88,11 +95,11 @@ void Mesh::setupMesh(QOpenGLShaderProgram* shaderProgram)
     core->glEnableVertexAttribArray(2);
     core->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, TexCoords)));
     // vertex tangent
-    core->glEnableVertexAttribArray(3);
-    core->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Tangent)));
+    //core->glEnableVertexAttribArray(3);
+    //core->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Tangent)));
     // vertex bitangent
-    core->glEnableVertexAttribArray(4);
-    core->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Bitangent)));
+    //core->glEnableVertexAttribArray(4);
+    //core->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Bitangent)));
 
-    //core->glBindVertexArray(0);
+    core->glBindVertexArray(0);
 }

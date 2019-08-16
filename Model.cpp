@@ -5,11 +5,14 @@ static QSharedPointer<QOpenGLTexture> textureFromFile(const QString &path, const
     QString fileName = directory + '/' + path;
 
     QImage image(fileName);
-    QSharedPointer<QOpenGLTexture> texture(new QOpenGLTexture(image));
+    QSharedPointer<QOpenGLTexture> texture(new QOpenGLTexture(QOpenGLTexture::Target2D));
+
+    texture->setFormat(QOpenGLTexture::RGBFormat);
+    texture->setData(image.mirrored(),QOpenGLTexture::GenerateMipMaps);
 
     texture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::Repeat);
     texture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::Repeat);
-    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    texture->setMinificationFilter(QOpenGLTexture::Linear);
     texture->setMagnificationFilter(QOpenGLTexture::Linear);
     return texture;
 }
@@ -76,20 +79,21 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
             // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
             vec.setX(mesh->mTextureCoords[0][i].x);
             vec.setY(mesh->mTextureCoords[0][i].y);
+            vertex.TexCoords = vec;
         }
         else
             vertex.TexCoords = QVector2D(0.0f, 0.0f);
 
         // tangent
-        vector.setX(mesh->mTangents[i].x);
-        vector.setY(mesh->mTangents[i].y);
-        vector.setZ(mesh->mTangents[i].z);
-        vertex.Tangent = vector;
+        //vector.setX(mesh->mTangents[i].x);
+        //vector.setY(mesh->mTangents[i].y);
+        //vector.setZ(mesh->mTangents[i].z);
+        //vertex.Tangent = vector;
         // bitangent
-        vector.setX(mesh->mBitangents[i].x);
-        vector.setY(mesh->mBitangents[i].y);
-        vector.setZ(mesh->mBitangents[i].z);
-        vertex.Bitangent = vector;
+        //vector.setX(mesh->mBitangents[i].x);
+        //vector.setY(mesh->mBitangents[i].y);
+        //vector.setZ(mesh->mBitangents[i].z);
+        //vertex.Bitangent = vector;
 
         vertices.push_back(vertex);
     }
