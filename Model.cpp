@@ -8,7 +8,7 @@ static QSharedPointer<QOpenGLTexture> textureFromFile(const QString &path, const
     QSharedPointer<QOpenGLTexture> texture(new QOpenGLTexture(QOpenGLTexture::Target2D));
 
     texture->setFormat(QOpenGLTexture::RGBFormat);
-    texture->setData(image.mirrored(),QOpenGLTexture::GenerateMipMaps);
+    texture->setData(image,QOpenGLTexture::GenerateMipMaps);
 
     texture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::Repeat);
     texture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::Repeat);

@@ -19,6 +19,8 @@ public:
 private slots:
     void on_actionopen_triggered();
 
+    void on_checkBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 };
