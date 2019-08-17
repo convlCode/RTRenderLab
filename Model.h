@@ -13,10 +13,13 @@ class Model
 {
 public:
     Model(QString const &path, bool gamma = false);
+    ~Model();
     void Draw(QOpenGLShaderProgram* shaderProgram);
 
     bool initFromScene(const aiScene* pscene,const QString &path);
     Mesh initMesh(const aiScene* pscene,const aiMesh* pmesh);
+
+    void updateModel(QString const &path);
 
     QVector<Texture> textures_loaded;
     QVector<Mesh> meshes;

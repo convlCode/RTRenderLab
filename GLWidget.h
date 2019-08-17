@@ -22,6 +22,8 @@ public:
     GLWidget(QWidget* parent = nullptr,Qt::WindowFlags f =Qt::WindowFlags());
     ~GLWidget();
 
+    void changeObjModel(const QString &fileName);
+
     //GLboolean keys[1024];
     GLboolean isOpenLighting;
     GLboolean isLineMode;

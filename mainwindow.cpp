@@ -18,6 +18,7 @@ void MainWindow::on_actionopen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,tr("select File"),".");
     qDebug() << fileName;
+    ui->openGLWidget->changeObjModel(fileName);
 }
 
 void MainWindow::on_checkBox_clicked(bool checked)

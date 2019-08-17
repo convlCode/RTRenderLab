@@ -23,11 +23,24 @@ Model::Model(QString const &path, bool gamma)
     loadModel(path);
 }
 
+Model::~Model()
+{
+    meshes.clear();
+    textures_loaded.clear();
+}
+
 void Model::Draw(QOpenGLShaderProgram* shaderProgram)
 {
     for(int i=0;i < meshes.size();++i){
         meshes[i].draw(shaderProgram);
     }
+}
+
+void Model::updateModel(const QString &path)
+{
+    meshes.clear();
+    textures_loaded.clear();
+    loadModel(path);
 }
 
 void Model::loadModel(const QString &path)

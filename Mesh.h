@@ -5,7 +5,8 @@
 #include <QVector>
 #include <QVector3D>
 #include <QString>
-#include "Texture2D.h"
+#include <QOpenGLTexture>
+//#include "Texture2D.h"
 #include <QOpenGLShaderProgram>
 
 struct Vertex {

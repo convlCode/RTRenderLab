@@ -31,6 +31,19 @@ GLWidget::~GLWidget()
     //ResourceManager::clear();
 }
 
+void GLWidget::changeObjModel(const QString &fileName)
+{
+    if(fileName != ""){
+        if(camera != nullptr){
+            delete camera;
+            camera = nullptr;
+        }
+        camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
+        if(fileName != "")
+            pmodel->updateModel(fileName);
+    }
+}
+
 void GLWidget::initializeGL()
 {
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();

@@ -15,6 +15,9 @@ Mesh::~Mesh()
     core->glDeleteBuffers(1,&VAO);
     core->glDeleteBuffers(1,&VBO);
     core->glDeleteBuffers(1,&EBO);
+    vertices.clear();
+    indices.clear();
+    textures.clear();
 }
 
 void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
