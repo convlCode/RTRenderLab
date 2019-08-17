@@ -24,6 +24,7 @@ public:
     inline void setVector3f(const QString& name, const GLfloat& x, const GLfloat& y, const GLfloat& z);
     inline void setVector3f(const QString& name, const QVector3D& value);
     inline void setFloat(const QString& name,const GLfloat value);
+    inline void setBool(const QString& name,const GLboolean value);
 };
 
 inline void Shader::setMatrix4f(const QString &name, const QMatrix4x4 &value)
@@ -51,6 +52,12 @@ inline void Shader::setVector3f(const QString &name, const QVector3D &value)
 }
 
 inline void Shader::setFloat(const QString &name, const GLfloat value)
+{
+    GLint loc = shaderProgram->uniformLocation(name);
+    shaderProgram->setUniformValue(loc,value);
+}
+
+inline void Shader::setBool(const QString &name, const GLboolean value)
 {
     GLint loc = shaderProgram->uniformLocation(name);
     shaderProgram->setUniformValue(loc,value);

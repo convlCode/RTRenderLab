@@ -28,3 +28,13 @@ void MainWindow::on_checkBox_clicked(bool checked)
     else
         ui->openGLWidget->isLineMode = GL_FALSE;
 }
+
+void MainWindow::on_checkBox_2_clicked(bool checked)
+{
+    //check box of lighting
+    if(checked)
+        ui->openGLWidget->isOpenLighting = GL_TRUE;
+    else {
+        ui->openGLWidget->isOpenLighting = GL_FALSE;
+    }
+}

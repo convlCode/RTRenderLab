@@ -59,6 +59,11 @@ void GLWidget::initializeGL()
     //program->link();
     ResourceManager::loadShader("modelLoad",":/shaders/modelLoad.vs",":/shaders/modelLoad.fs");
 
+    ResourceManager::getShader("modelLoad").use().setVector3f("light.ambient",QVector3D(0.35f,0.35f,0.35f));
+    ResourceManager::getShader("modelLoad").use().setVector3f("light.diffuse",QVector3D(0.6f,0.6f,0.6f));
+    ResourceManager::getShader("modelLoad").use().setVector3f("light.specular",QVector3D(1.0f,1.0f,1.0f));
+    ResourceManager::getShader("modelLoad").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
+
     //ResourceManager::loadShader("cubeTest",":/shaders/cubeTest.vs",":/shaders/cubeTest.fs");
 
     core->glEnable(GL_DEPTH_TEST);
@@ -123,6 +128,9 @@ void GLWidget::updateGL(GLfloat dt){
   ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("view",view);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("model",model);
+
+  ResourceManager::getShader("modelLoad").use().setVector3f("viewPos", camera->position);
+  ResourceManager::getShader("modelLoad").use().setBool("isOpenLighting",this->isOpenLighting);
 
   /*ResourceManager::getShader("cubeTest").use().setMatrix4f("projection",projection);
   ResourceManager::getShader("cubeTest").use().setMatrix4f("view",view);

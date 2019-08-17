@@ -47,13 +47,11 @@ void Mesh::draw(QOpenGLShaderProgram* shaderProgram)
 
                                                  // now set the sampler to the correct texture unit
         //core->glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-        if(name == "texture_diffuse"){
-            QString uniformName = QString(name + number);
-            shaderProgram->setUniformValue(QString(name + number).toLocal8Bit().constData(), i);
-            //ResourceManager::getShader("modelLoad").use().setInteger(uniformName,i);
-            // and finally bind the texture
-            textures[i].texture->bind(static_cast<unsigned int>(i));
-        }
+        QString uniformName = QString(name + number);
+        shaderProgram->setUniformValue(QString(name + number).toLocal8Bit().constData(), i);
+        //ResourceManager::getShader("modelLoad").use().setInteger(uniformName,i);
+        // and finally bind the texture
+        textures[i].texture->bind(static_cast<unsigned int>(i));
     }
 
     // draw mesh
