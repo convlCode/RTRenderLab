@@ -1,6 +1,7 @@
 ﻿#include "GLWidget.h"
 #include <QImage>
 #include <QKeyEvent>
+#include <QDir>
 #include "ResourceManager.h"
 
 GLWidget::GLWidget(QWidget* parent,Qt::WindowFlags f)
@@ -61,8 +62,8 @@ void GLWidget::initializeGL()
     time.start();
 
     camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
-
-    pmodel = new Model("D:/Qt/qtProjects/RTRenderLab/nanosuit/nanosuit.obj");
+    qDebug()<<QDir::currentPath();
+    pmodel = new Model("./objects/nanosuit/nanosuit.obj");
 
     //cube = new Cube();
     //cube->init();
