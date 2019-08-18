@@ -23,6 +23,8 @@ private slots:
 
     void on_checkBox_2_clicked(bool checked);
 
+    void on_doubleSpinBox_valueChanged(double arg1);
+
 private:
     Ui::MainWindow *ui;
 };

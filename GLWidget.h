@@ -27,6 +27,7 @@ public:
     //GLboolean keys[1024];
     GLboolean isOpenLighting;
     GLboolean isLineMode;
+    GLfloat modelScaling;
 
 protected:
     virtual void initializeGL();

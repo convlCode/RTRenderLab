@@ -48,8 +48,10 @@ void GLWidget::changeObjModel(const QString &fileName)
 void GLWidget::initializeGL()
 {
     core = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
+
     isOpenLighting = GL_TRUE;
     isLineMode = GL_FALSE;
+    modelScaling = 0.15f;
 
     deltaTime = 0.0f;
     lastFrame = 0.0f;
@@ -138,7 +140,7 @@ void GLWidget::updateGL(GLfloat dt){
   view = camera->getViewMatrix();
 
   model.translate(0.0f,-1.1f,0.0f);
-  model.scale(0.15f, 0.15f, 0.15f);
+  model.scale(modelScaling);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("view",view);
   ResourceManager::getShader("modelLoad").use().setMatrix4f("model",model);

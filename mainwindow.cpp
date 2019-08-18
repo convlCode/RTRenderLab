@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowTitle("RTRenderLab");
 }
 
 MainWindow::~MainWindow()
@@ -38,4 +39,9 @@ void MainWindow::on_checkBox_2_clicked(bool checked)
     else {
         ui->openGLWidget->isOpenLighting = GL_FALSE;
     }
+}
+
+void MainWindow::on_doubleSpinBox_valueChanged(double arg1)
+{
+    ui->openGLWidget->modelScaling = static_cast<float>(arg1);
 }
