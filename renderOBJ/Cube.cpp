@@ -69,8 +69,8 @@ void Cube::init(){
     core->glEnableVertexAttribArray(0);
     //core->glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(3*sizeof(float)));
     //core->glEnableVertexAttribArray(1);
-    //core->glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(6*sizeof(float)));
-    //core->glEnableVertexAttribArray(2);
+    core->glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(float),reinterpret_cast<void*>(6*sizeof(float)));
+    core->glEnableVertexAttribArray(2);
   core->glBindVertexArray(0);
 /*
   core->glBindVertexArray(lightVAO);
@@ -87,7 +87,7 @@ void Cube::init(){
 void Cube::drawCube()
 {
     //core->glActiveTexture(GL_TEXTURE0);
-    //ResourceManager::getTexture("container2").bind();
+    //ResourceManager::getTexture("marble").bind();
     //core->glActiveTexture(GL_TEXTURE1);
     //ResourceManager::getTexture("container2_specular").bind();
 

@@ -20,5 +20,9 @@
         <file>shaders/modelLoad.vs</file>
         <file>shaders/cubeTest.fs</file>
         <file>shaders/cubeTest.vs</file>
+        <file>textures/marble.jpg</file>
+        <file>textures/metal.png</file>
+        <file>shaders/cube_dtest.fs</file>
+        <file>shaders/cube_dtest.vs</file>
     </qresource>
 </RCC>

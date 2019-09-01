@@ -65,26 +65,23 @@ void GLWidget::initializeGL()
 
     camera = new Camera(QVector3D(0.0f,0.0f,3.0f));
     qDebug()<<QDir::currentPath();
-    pmodel = new Model("./objects/nanosuit/nanosuit.obj");
+    //pmodel = new Model("./objects/nanosuit/nanosuit.obj");
 
-    //cube = new Cube();
-    //cube->init();
+    cube = new Cube();
+    cube->init();
 
-    //program->addShaderFromSourceFile(QOpenGLShader::Vertex,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.vs");
-    //program->addShaderFromSourceFile(QOpenGLShader::Fragment,"D:/Qt/qtProjects/RTRenderLab/shaders/modelLoad.fs");
-    //program->link();
-    ResourceManager::loadShader("modelLoad",":/shaders/modelLoad.vs",":/shaders/modelLoad.fs");
+    ResourceManager::loadShader("cube_dtest",":/shaders/cube_dtest.vs",":/shaders/cube_dtest.fs");
+    //ResourceManager::loadShader("coordinate","","");
+    //ResourceManager::loadShader("plane","","");
 
-    ResourceManager::getShader("modelLoad").use().setVector3f("light.ambient",QVector3D(0.35f,0.35f,0.35f));
-    ResourceManager::getShader("modelLoad").use().setVector3f("light.diffuse",QVector3D(0.6f,0.6f,0.6f));
-    ResourceManager::getShader("modelLoad").use().setVector3f("light.specular",QVector3D(1.0f,1.0f,1.0f));
-    ResourceManager::getShader("modelLoad").use().setVector3f("light.position",QVector3D(1.0f,0.8f,0.8f));
+    ResourceManager::loadTexture("marble",":/textures/marble.jpg");
+    //ResourceManager::loadTexture("marble","");
+    //ResourceManager::loadTexture("metal","");
 
-    //ResourceManager::loadShader("cubeTest",":/shaders/cubeTest.vs",":/shaders/cubeTest.fs");
-
+    ResourceManager::getShader("cube_dtest").use().setInteger("ambientMap", 0);
     core->glEnable(GL_DEPTH_TEST);
-    core->glClearColor(0.05f,0.05f,0.05f,1.0f);
-    //core->glClearColor(1.0f,1.0f,1.0f,1.0f);
+    //core->glClearColor(0.05f,0.05f,0.05f,1.0f);
+    core->glClearColor(0.3f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -100,14 +97,22 @@ void GLWidget::paintGL()
     lastFrame = currentFrame;
 
 
-    camera->processInput(deltaTime);
-    this->updateGL(deltaTime);
+    camera->processInput(deltaTime); //it may change the camera's vectors.
+    this->updateGL(deltaTime); //it will compute new view and projection matrix after changing of camera.
 
+    QMatrix4x4 model;
+    model.translate(-1.0f, 0.0f, -1.0f);
+    ResourceManager::getShader("cube_dtest").use().setMatrix4f("model", model);
+    core->glActiveTexture(GL_TEXTURE0);
+    ResourceManager::getTexture("marble").bind();
+    cube->drawCube();
 
-    //ResourceManager::getShader("cubeTest").use();
-    //cube->drawCube();
-    ResourceManager::getShader("modelLoad").use();
-    pmodel->Draw(ResourceManager::getShader("modelLoad").shaderProgram);
+    model.setToIdentity();
+    model.translate(1.0f, 0.0f, 0.0f);
+    ResourceManager::getShader("cube_dtest").use().setMatrix4f("model",model);
+    cube->drawCube();
+    //ResourceManager::getShader("modelLoad").use();
+    //pmodel->Draw(ResourceManager::getShader("modelLoad").shaderProgram);
 
     update();
 }
@@ -135,22 +140,12 @@ void GLWidget::updateGL(GLfloat dt){
     core->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   //QMatrix4x4 projection, view;
-  QMatrix4x4 projection, view, model;
+  QMatrix4x4 projection, view;
   projection.perspective(camera->zoom, static_cast<GLfloat>(width()) / static_cast<GLfloat>(height()), 0.1f, 200.f);
-  view = camera->getViewMatrix();
+  view = camera->getViewMatrix(); //it due to the camera->position,and camera->position changed when press key.
 
-  model.translate(0.0f,-1.1f,0.0f);
-  model.scale(modelScaling);
-  ResourceManager::getShader("modelLoad").use().setMatrix4f("projection",projection);
-  ResourceManager::getShader("modelLoad").use().setMatrix4f("view",view);
-  ResourceManager::getShader("modelLoad").use().setMatrix4f("model",model);
-
-  ResourceManager::getShader("modelLoad").use().setVector3f("viewPos", camera->position);
-  ResourceManager::getShader("modelLoad").use().setBool("isOpenLighting",this->isOpenLighting);
-
-  /*ResourceManager::getShader("cubeTest").use().setMatrix4f("projection",projection);
-  ResourceManager::getShader("cubeTest").use().setMatrix4f("view",view);
-  ResourceManager::getShader("cubeTest").use().setMatrix4f("model",model);*/
+  ResourceManager::getShader("cube_dtest").use().setMatrix4f("projection",projection);
+  ResourceManager::getShader("cube_dtest").use().setMatrix4f("view",view);
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
