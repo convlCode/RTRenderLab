@@ -86,13 +86,9 @@ void Cube::init(){
 
 void Cube::drawCube()
 {
-    //core->glActiveTexture(GL_TEXTURE0);
-    //ResourceManager::getTexture("marble").bind();
-    //core->glActiveTexture(GL_TEXTURE1);
-    //ResourceManager::getTexture("container2_specular").bind();
-
-    core->glBindVertexArray(cubeVAO);
+    core->glBindVertexArray(cubeVAO); //不使用指定的VAO就必须在这里绑定VertexAttribPointer
     core->glDrawArrays(GL_TRIANGLES,0,36);
+    core->glBindVertexArray(0);
 }
 
 void Cube::drawLight()

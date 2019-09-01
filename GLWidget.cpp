@@ -70,16 +70,26 @@ void GLWidget::initializeGL()
     cube = new Cube();
     cube->init();
 
+    plane = new Plane();
+    plane->init();
+
     ResourceManager::loadShader("cube_dtest",":/shaders/cube_dtest.vs",":/shaders/cube_dtest.fs");
+    ResourceManager::loadShader("plane",":/shaders/plane.vs",":/shaders/plane.fs");
     //ResourceManager::loadShader("coordinate","","");
-    //ResourceManager::loadShader("plane","","");
 
     ResourceManager::loadTexture("marble",":/textures/marble.jpg");
-    //ResourceManager::loadTexture("marble","");
-    //ResourceManager::loadTexture("metal","");
+    ResourceManager::loadTexture("metal",":/textures/metal.png");
 
     ResourceManager::getShader("cube_dtest").use().setInteger("ambientMap", 0);
+
+    QMatrix4x4 model;
+    model.translate(0.0f, -0.5f, 0.0f);
+    model.scale(10.0f);
+    ResourceManager::getShader("plane").use().setMatrix4f("model", model);
+    ResourceManager::getShader("plane").use().setInteger("ambientMap", 0);
+
     core->glEnable(GL_DEPTH_TEST);
+    core->glDepthFunc(GL_ALWAYS);
     //core->glClearColor(0.05f,0.05f,0.05f,1.0f);
     core->glClearColor(0.3f,0.3f,0.3f,1.0f);
     core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,6 +102,7 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::paintGL()
 {
+    core->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLfloat currentFrame = static_cast<GLfloat>(time.elapsed()) / 100.0f;
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -111,6 +122,11 @@ void GLWidget::paintGL()
     model.translate(1.0f, 0.0f, 0.0f);
     ResourceManager::getShader("cube_dtest").use().setMatrix4f("model",model);
     cube->drawCube();
+
+    ResourceManager::getShader("plane").use();
+    core->glActiveTexture(GL_TEXTURE0);
+    ResourceManager::getTexture("metal").bind();
+    plane->draw(GL_TRUE);
     //ResourceManager::getShader("modelLoad").use();
     //pmodel->Draw(ResourceManager::getShader("modelLoad").shaderProgram);
 
@@ -146,6 +162,9 @@ void GLWidget::updateGL(GLfloat dt){
 
   ResourceManager::getShader("cube_dtest").use().setMatrix4f("projection",projection);
   ResourceManager::getShader("cube_dtest").use().setMatrix4f("view",view);
+
+  ResourceManager::getShader("plane").use().setMatrix4f("projection", projection);
+  ResourceManager::getShader("plane").use().setMatrix4f("view", view);
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
